@@ -29,6 +29,9 @@ bindkey -e
 bindkey '^[[1;5C' forward-word
 # ctrl-left - move backward one word
 bindkey '^[[1;5D' backward-word
+# forward delete
+bindkey '^[[3~' delete-char
+bindkey '^[3;5~' delete-char
 # up down history search
 autoload -Uz history-search-end
 zle -N history-beginning-search-backward-end history-search-end
