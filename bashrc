@@ -19,8 +19,6 @@ export EDITOR=vim
 # no forkedbooter popups in maven
 export MAVEN_OPTS="-Djava.awt.headless=true"
 
-export GREP_OPTIONS="--color=auto"
-
 # ignore dups and spaces in history
 HISTCONTROL=ignoreboth
 # history size
@@ -87,6 +85,12 @@ alias tree="tree -C"
 alias mysql-drop-testdbs='mysql -u root -e "show databases" --batch --column-names=false|grep ^test_|xargs -n 1 -I{} mysql -u root -e "drop database {}"'
 alias python-http-server="python -m SimpleHTTPServer"
 alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias grep="grep --color=auto"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias zgrep="grep --color=auto"
+alias zegrep="zegrep --color=auto"
+alias zfgrep="zfgrep --color=auto"
 
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
