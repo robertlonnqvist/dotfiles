@@ -19,6 +19,8 @@ export EDITOR=vim
 # no forkedbooter popups in maven
 export MAVEN_OPTS="-Djava.awt.headless=true"
 
+export GREP_OPTIONS="--color=auto"
+
 # ignore dups and spaces in history
 HISTCONTROL=ignoreboth
 # history size
