@@ -117,10 +117,10 @@ GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWCOLORHINTS=1
 
-PROMPT='%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%~%{$reset_color%}%b '
+PROMPT='%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%c%{$reset_color%}%b '
 if typeset __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%~%b' '%{$reset_color%}%b ' ' (%s)'
+    __git_ps1 '%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%c%b' '%{$reset_color%}%b ' ' (%s)'
   }
 fi
 

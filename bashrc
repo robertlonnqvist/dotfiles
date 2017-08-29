@@ -66,7 +66,7 @@ if ! typeset -f __git_ps1 2>&1 >/dev/null ; then
   fi
 fi
 
-PS1='\[$(__exit_status_color)\]➜ \[\e[01;34m\]\w\[\e[00m\] '
+PS1='\[$(__exit_status_color)\]➜ \[\e[01;34m\]\W\[\e[00m\] '
 if typeset -f __git_ps1 2>&1 >/dev/null ; then
   # prompt setup
   GIT_PS1_SHOWDIRTYSTATE=1
@@ -74,7 +74,7 @@ if typeset -f __git_ps1 2>&1 >/dev/null ; then
   GIT_PS1_SHOWSTASHSTATE=1
   GIT_PS1_SHOWUNTRACKEDFILES=1
   GIT_PS1_SHOWCOLORHINTS=1
-  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]➜ \[\e[01;34m\]\w\[\e[00m\]" " " " (%s)"'
+  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]➜ \[\e[01;34m\]\W\[\e[00m\]" " " " (%s)"'
 fi
 
 # if keychain is installed use it
