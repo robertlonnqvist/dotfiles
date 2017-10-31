@@ -60,7 +60,7 @@ export PATH
 alias tree="tree -C"
 alias mysql-drop-testdbs='mysql -u root -e "show databases" --batch --column-names=false|grep ^test_|xargs -n 1 -I{} mysql -u root -e "drop database {}"'
 alias python-http-server="python -m SimpleHTTPServer"
-alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
+alias myip="curl ifconfig.co"
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
