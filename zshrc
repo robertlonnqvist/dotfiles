@@ -129,7 +129,9 @@ if typeset __git_ps1 2>&1 >/dev/null ; then
 fi
 
 # custom plugins
-for f in ${HOME}/.zsh/*.zsh; do
-  source $f
-done
+if [[ -d "${HOME}/.zsh" && ! -z "$(ls -A ${HOME}/.zsh)" ]]; then
+  for f in ${HOME}/.zsh/*.zsh; do
+    source $f
+  done
 unset f
+fi
