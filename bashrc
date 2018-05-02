@@ -52,8 +52,12 @@ if [[ -e /usr/local/share/bash-completion/bash_completion ]]; then
 elif [[ -e /usr/share/bash-completion/bash_completion ]]; then
   source /usr/share/bash-completion/bash_completion
 fi
-if [[ -d ${HOME}/.bash_completion.d ]] && [[ ! -z $(ls -A ${HOME}/.bash_completion.d) ]]; then
-  for p in ${HOME}/.bash_completion.d/*; do source ${p}; done
+if [[ -d ${HOME}/.bash_completion.d ]]; then
+  for p in ${HOME}/.bash_completion.d/*; do
+    if [[ -e "${p}" ]]; then
+      source "${p}";
+    fi
+  done
   unset p
 fi
 
