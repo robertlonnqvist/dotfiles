@@ -131,7 +131,7 @@ fi
 # custom plugins
 if [[ -d "${HOME}/.zsh" ]]; then
   for f in ${HOME}/.zsh/*.zsh(N); do
-    source $f
+    source "$f"
   done
   unset f
 fi

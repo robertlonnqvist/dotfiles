@@ -55,7 +55,7 @@ fi
 if [[ -d ${HOME}/.bash_completion.d ]]; then
   for p in ${HOME}/.bash_completion.d/*; do
     if [[ -e "${p}" ]]; then
-      source "${p}";
+      source "${p}"
     fi
   done
   unset p
