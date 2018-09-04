@@ -68,6 +68,10 @@ alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
+if [[ -e ~/.dir_colors ]]; then
+  eval "$(dircolors -b ~/.dir_colors)"
+fi
+
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
   export LSCOLORS=ExGxBxDxCxegedabagacad
