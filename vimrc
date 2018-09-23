@@ -35,3 +35,5 @@ set showcmd     " show incomplete commands down the bottom
 set background=dark
 
 set clipboard=unnamed " use system clipboard by default
+
+set mouse=a " enable mouse support
