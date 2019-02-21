@@ -62,7 +62,7 @@ if [[ -d ${HOME}/.bash_completion.d ]]; then
 fi
 
 # if no git prompt has been loaded, load one.
-if ! typeset -f __git_ps1 2>&1 >/dev/null ; then
+if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
   if [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
     source /usr/share/git/completion/git-prompt.sh
   elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
@@ -71,7 +71,7 @@ if ! typeset -f __git_ps1 2>&1 >/dev/null ; then
 fi
 
 PS1='\[$(__exit_status_color)\]➜ \[\e[01;34m\]\W\[\e[00m\] '
-if typeset -f __git_ps1 2>&1 >/dev/null ; then
+if declare -f __git_ps1 >/dev/null 2>&1 ; then
   # prompt setup
   GIT_PS1_SHOWDIRTYSTATE=1
   GIT_PS1_SHOWUPSTREAM=auto
@@ -82,7 +82,7 @@ if typeset -f __git_ps1 2>&1 >/dev/null ; then
 fi
 
 # if keychain is installed use it
-command -v keychain 2>&1 >/dev/null && eval $(keychain --eval --quiet id_rsa)
+command -v keychain >/dev/null 2>&1 && eval "$(keychain --eval --quiet id_rsa)"
 
 # aliases
 alias tree="tree -C"
