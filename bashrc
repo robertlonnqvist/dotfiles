@@ -1,5 +1,5 @@
 if [[ -e /etc/bashrc ]]; then
-  source /etc/bashrc
+  . /etc/bashrc
 fi
 
 export GOPATH=${HOME}/Development/go
@@ -48,14 +48,14 @@ __exit_status_color() {
 
 # completions
 if [[ -e /usr/local/share/bash-completion/bash_completion ]]; then
-  source /usr/local/share/bash-completion/bash_completion
+  . /usr/local/share/bash-completion/bash_completion
 elif [[ -e /usr/share/bash-completion/bash_completion ]]; then
-  source /usr/share/bash-completion/bash_completion
+  . /usr/share/bash-completion/bash_completion
 fi
 if [[ -d ${HOME}/.bash_completion.d ]]; then
   for p in ${HOME}/.bash_completion.d/*; do
     if [[ -e "${p}" ]]; then
-      source "${p}"
+      . "${p}"
     fi
   done
   unset p
@@ -64,9 +64,9 @@ fi
 # if no git prompt has been loaded, load one.
 if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
   if [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
-    source /usr/share/git/completion/git-prompt.sh
+    . /usr/share/git/completion/git-prompt.sh
   elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    source /usr/share/git-core/contrib/completion/git-prompt.sh
+    . /usr/share/git-core/contrib/completion/git-prompt.sh
   fi
 fi
 

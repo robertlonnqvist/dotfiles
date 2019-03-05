@@ -112,11 +112,11 @@ setopt promptsubst
 
 if ! typeset -f __git_ps1 2>&1 >/dev/null ; then
   if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
-    source /usr/local/etc/bash_completion.d/git-prompt.sh
+    . /usr/local/etc/bash_completion.d/git-prompt.sh
   elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
-    source /usr/share/git/completion/git-prompt.sh
+    . /usr/share/git/completion/git-prompt.sh
   elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    source /usr/share/git-core/contrib/completion/git-prompt.sh
+    . /usr/share/git-core/contrib/completion/git-prompt.sh
   fi
 fi
 
@@ -136,7 +136,7 @@ fi
 # custom plugins
 if [[ -d "${HOME}/.zsh" ]]; then
   for f in ${HOME}/.zsh/*.zsh(N); do
-    source "$f"
+    . "$f"
   done
   unset f
 fi
