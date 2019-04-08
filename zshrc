@@ -45,13 +45,13 @@ bindkey '^X^E' edit-command-line
 
 # paths
 typeset -U path
-if [[ -e "${HOME}/.bin" ]]; then
+if [[ -f "${HOME}/.bin" ]]; then
   path=("${HOME}/.bin" $path[@])
 fi
-if [[ -e "${HOME}/.npm-packages/bin" ]]; then
+if [[ -f "${HOME}/.npm-packages/bin" ]]; then
   path=("${HOME}/.npm-packages/bin" $path[@])
 fi
-if [[ -e "${GOPATH}/bin" ]]; then
+if [[ -f "${GOPATH}/bin" ]]; then
   path=("${GOPATH}/bin" $path[@])
 fi
 export PATH
@@ -68,7 +68,7 @@ alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
-if [[ -e ~/.dir_colors ]]; then
+if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
 fi
 
@@ -93,6 +93,10 @@ man() {
       LESS_TERMCAP_us=$'\e[01;36m' \
       man "$@"
 }
+
+if type brew &>/dev/null; then
+  FPATH=/usr/local/share/zsh/site-functions:$FPATH
+fi
 
 # completion
 setopt auto_menu

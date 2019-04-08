@@ -1,4 +1,4 @@
-if [[ -e /etc/bashrc ]]; then
+if [[ -f /etc/bashrc ]]; then
   . /etc/bashrc
 fi
 
@@ -6,7 +6,7 @@ export GOPATH=${HOME}/Development/go
 
 # path modifications
 for p in ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH}/bin; do
-  if [[ -e "${p}" ]] && [[ ":${PATH}:" != *":${p}:"* ]]; then
+  if [[ -f "${p}" ]] && [[ ":${PATH}:" != *":${p}:"* ]]; then
     PATH="${p}:${PATH}"
   fi
 done
@@ -47,14 +47,25 @@ __exit_status_color() {
 }
 
 # completions
-if [[ -e /usr/local/share/bash-completion/bash_completion ]]; then
-  . /usr/local/share/bash-completion/bash_completion
-elif [[ -e /usr/share/bash-completion/bash_completion ]]; then
+if command -v >/dev/null 2>&1; then
+  if [[ -d /usr/local/etc/bash_completion.d ]]; then
+    for p in /usr/local/etc/bash_completion.d/*; do
+      if [[ -f "${p}" ]]; then
+        . "${p}"
+      fi
+    done
+    unset p
+  fi
+  if [[ -f /usr/local/etc/profile.d/bash_completion.sh ]]; then
+    . /usr/local/etc/profile.d/bash_completion.sh
+  fi
+elif [[ -f /usr/share/bash-completion/bash_completion ]]; then
   . /usr/share/bash-completion/bash_completion
 fi
+
 if [[ -d ${HOME}/.bash_completion.d ]]; then
   for p in ${HOME}/.bash_completion.d/*; do
-    if [[ -e "${p}" ]]; then
+    if [[ -f "${p}" ]]; then
       . "${p}"
     fi
   done
@@ -63,9 +74,9 @@ fi
 
 # if no git prompt has been loaded, load one.
 if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
-  if [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
+  if [[ -f /usr/share/git/completion/git-prompt.sh ]]; then
     . /usr/share/git/completion/git-prompt.sh
-  elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
+  elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
     . /usr/share/git-core/contrib/completion/git-prompt.sh
   fi
 fi
@@ -96,7 +107,7 @@ alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
-if [[ -e ~/.dir_colors ]]; then
+if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
 fi
 
