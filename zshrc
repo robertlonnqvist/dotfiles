@@ -45,13 +45,13 @@ bindkey '^X^E' edit-command-line
 
 # paths
 typeset -U path
-if [[ -f "${HOME}/.bin" ]]; then
+if [[ -d "${HOME}/.bin" ]]; then
   path=("${HOME}/.bin" $path[@])
 fi
-if [[ -f "${HOME}/.npm-packages/bin" ]]; then
+if [[ -d "${HOME}/.npm-packages/bin" ]]; then
   path=("${HOME}/.npm-packages/bin" $path[@])
 fi
-if [[ -f "${GOPATH}/bin" ]]; then
+if [[ -d "${GOPATH}/bin" ]]; then
   path=("${GOPATH}/bin" $path[@])
 fi
 export PATH
