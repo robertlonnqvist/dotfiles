@@ -1,6 +1,6 @@
 [user]
     name = Robert Lönnqvist
-    email = robert.lonnqvist@tele2.com
+    email = robert.lonnqvist@cygni.se
 [core]
     autocrlf = input
     safecrlf = true
