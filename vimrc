@@ -12,6 +12,8 @@ set backspace=indent,eol,start " allow backspacing over everything in insert mod
 
 set title         " use window title
 
+set whichwrap+=<,>,h,l,[,] " wrap line left and right
+
 " tab settings
 set tabstop=2
 set shiftwidth=2
@@ -24,3 +26,4 @@ set showcmd     " show incomplete commands down the bottom
 set background=dark
 
 set clipboard=unnamed " use system clipboard by default
+
