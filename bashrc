@@ -81,7 +81,7 @@ if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
   fi
 fi
 
-PS1='\[$(__exit_status_color)\]➜ \[\e[01;34m\]\W\[\e[00m\] '
+PS1='\[$(__exit_status_color)\]❯ \[\e[01;34m\]\W\[\e[00m\] '
 if declare -f __git_ps1 >/dev/null 2>&1 ; then
   # prompt setup
   GIT_PS1_SHOWDIRTYSTATE=1
@@ -89,7 +89,7 @@ if declare -f __git_ps1 >/dev/null 2>&1 ; then
   GIT_PS1_SHOWSTASHSTATE=1
   GIT_PS1_SHOWUNTRACKEDFILES=1
   GIT_PS1_SHOWCOLORHINTS=1
-  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]➜ \[\e[01;34m\]\W\[\e[00m\]" " " " (%s)"'
+  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]❯ \[\e[01;34m\]\W\[\e[00m\]" " " " (%s)"'
 fi
 
 # if keychain is installed use it
@@ -114,8 +114,8 @@ fi
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
-  export LSCOLORS="ExGxFxDxCxegedabagacad"
-  export LS_COLORS="di=1;34:ln=1;36:so=1;35:pi=1;33:ex=1;32:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+  export LSCOLORS="exfxcxdxbxGxDxabagacad"
+  export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg=36;40;07:tw=32;40;07:ow=33;40;07:"
   alias ls="ls -GFh"
 else
   alias ls="ls --color=auto -Fh"

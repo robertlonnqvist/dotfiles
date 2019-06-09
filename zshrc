@@ -75,8 +75,8 @@ fi
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
-  export LSCOLORS="ExGxFxDxCxegedabagacad"
-  export LS_COLORS="di=1;34:ln=1;36:so=1;35:pi=1;33:ex=1;32:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+  export LSCOLORS="exfxcxdxbxGxDxabagacad"
+  export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg=36;40;07:tw=32;40;07:ow=33;40;07:"
   alias ls="ls -GFh"
 else
   alias ls="ls --color=auto -Fh"
@@ -94,10 +94,6 @@ man() {
       man "$@"
 }
 
-if type brew &>/dev/null; then
-  FPATH=/usr/local/share/zsh/site-functions:$FPATH
-fi
-
 # completion
 setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
@@ -107,6 +103,9 @@ zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:*:users' ignored-patterns '_*'
+zstyle ':completion::complete:*' use-cache on
+zstyle ':completion::complete:*' cache-path "${HOME}/.zcompcache"
+zstyle ':completion:*' completer _complete _match _approximate
 
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors
@@ -130,10 +129,10 @@ GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWCOLORHINTS=1
 
-PROMPT='%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%c%{$reset_color%}%b '
+PROMPT='%(?:%{$fg_bold[green]%}❯ :%{$fg_bold[red]%}❯ %s)%b%{$fg[blue]%}%c%{$reset_color%}%b '
 if typeset __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ %s)%b%{$fg_bold[blue]%}%c%b' '%{$reset_color%}%b ' ' (%s)'
+    __git_ps1 '%(?:%{$fg_bold[green]%}❯ :%{$fg_bold[red]%}❯ %s)%b%{$fg[blue]%}%c%b' '%{$reset_color%}%b ' ' (%s)'
   }
 fi
 
