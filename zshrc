@@ -23,7 +23,7 @@ setopt extended_glob
 autoload -U select-word-style && select-word-style bash
 # emacs bindings
 bindkey -e
-# ctrl-righ - move forward one word
+# ctrl-right - move forward one word
 bindkey '^[[1;5C' forward-word
 # ctrl-left - move backward one word
 bindkey '^[[1;5D' backward-word

@@ -27,3 +27,4 @@ set background=dark
 
 set clipboard=unnamed " use system clipboard by default
 
+set timeoutlen=1000 ttimeoutlen=0 " reduce annoying timeouts
