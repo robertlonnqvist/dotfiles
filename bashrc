@@ -74,14 +74,18 @@ fi
 
 # if no git prompt has been loaded, load one.
 if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
-  if [[ -f /usr/share/git/completion/git-prompt.sh ]]; then
+  if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
+    . /usr/local/etc/bash_completion.d/git-prompt.sh
+  elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
     . /usr/share/git/completion/git-prompt.sh
-  elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
+  elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
     . /usr/share/git-core/contrib/completion/git-prompt.sh
+  elif [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
+    . /usr/lib/git-core/git-sh-prompt
   fi
 fi
 
-PS1='\[$(__exit_status_color)\]❯ \[\e[01;36m\]\W\[\e[00m\] '
+PS1='\[$(__exit_status_color)\]> \[\e[01;36m\]\W\[\e[00m\] '
 if declare -f __git_ps1 >/dev/null 2>&1 ; then
   # prompt setup
   GIT_PS1_SHOWDIRTYSTATE=1
@@ -89,7 +93,7 @@ if declare -f __git_ps1 >/dev/null 2>&1 ; then
   GIT_PS1_SHOWSTASHSTATE=1
   GIT_PS1_SHOWUNTRACKEDFILES=1
   GIT_PS1_SHOWCOLORHINTS=1
-  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]❯ \[\e[01;36m\]\W\[\e[00m\]" " " " (%s)"'
+  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]> \[\e[01;36m\]\W\[\e[00m\]" " " " (%s)"'
 fi
 
 # if keychain is installed use it
@@ -109,13 +113,14 @@ alias zfgrep="zfgrep --color=auto"
 
 if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
+else
+  export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 fi
 
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
   export LSCOLORS="Gxfxcxdxbxegedabagacad"
-  export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
   alias ls="ls -GFh"
 else
   alias ls="ls --color=auto -Fh"

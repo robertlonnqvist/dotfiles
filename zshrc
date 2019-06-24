@@ -44,7 +44,7 @@ zle -N edit-command-line
 bindkey '^X^E' edit-command-line
 
 # paths
-typeset -U path
+declare -U path
 if [[ -d "${HOME}/.bin" ]]; then
   path=("${HOME}/.bin" $path[@])
 fi
@@ -76,10 +76,15 @@ fi
 if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
   export LSCOLORS="Gxfxcxdxbxegedabagacad"
-  export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
   alias ls="ls -GFh"
 else
   alias ls="ls --color=auto -Fh"
+fi
+
+if [[ -f ~/.dir_colors ]]; then
+  eval "$(dircolors -b ~/.dir_colors)"
+else
+  export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 fi
 
 # functions
@@ -113,13 +118,15 @@ autoload -Uz colors && colors
 # prompt
 setopt promptsubst
 
-if ! typeset -f __git_ps1 2>&1 >/dev/null ; then
+if ! declare -f __git_ps1 2>&1 >/dev/null ; then
   if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
     . /usr/local/etc/bash_completion.d/git-prompt.sh
   elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
     . /usr/share/git/completion/git-prompt.sh
   elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
     . /usr/share/git-core/contrib/completion/git-prompt.sh
+  elif [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
+    . /usr/lib/git-core/git-sh-prompt
   fi
 fi
 
@@ -129,10 +136,10 @@ GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWCOLORHINTS=1
 
-PROMPT='%(?:%{$fg_bold[green]%}❯ :%{$fg_bold[red]%}❯ %s)%{$fg[cyan]%}%c%{$reset_color%}%b '
-if typeset __git_ps1 2>&1 >/dev/null ; then
+PROMPT='%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg[cyan]%}%c%{$reset_color%}%b '
+if declare -f __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%(?:%{$fg_bold[green]%}❯ :%{$fg_bold[red]%}❯ %s)%{$fg_bold[cyan]%}%c%b' '%{$reset_color%} ' ' (%s)'
+    __git_ps1 '%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg_bold[cyan]%}%c%b' '%{$reset_color%} ' ' (%s)'
   }
 fi
 
