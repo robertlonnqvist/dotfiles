@@ -146,10 +146,6 @@ fi
 # if keychain is installed use it
 command -v keychain >/dev/null 2>&1 && eval "$(keychain --eval --quiet id_rsa)"
 
-# custom plugins
-if [[ -d "${HOME}/.zsh" ]]; then
-  for f in ${HOME}/.zsh/*.zsh(N); do
-    . "$f"
-  done
-  unset f
+if [[ -f ~/.zshrc.local ]]; then
+  . ~/.zshrc.local
 fi
