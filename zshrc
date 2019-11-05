@@ -75,7 +75,7 @@ fi
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
-  export LSCOLORS="Gxfxcxdxbxegedabagacad"
+  export LSCOLORS="ExFxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
 else
   alias ls="ls --color=auto -Fh"
@@ -84,7 +84,7 @@ fi
 if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
 else
-  export LS_COLORS="di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+  export LS_COLORS="di=1;34:ln=1;35:so=1;36:pi=1;33:ex=1;32:bd=1;34;46:cd=1;34;43:su=1;30;41:sg=1;30;46:tw=1;30;42:ow=1;30;43"
 fi
 
 # functions
@@ -139,7 +139,7 @@ GIT_PS1_SHOWCOLORHINTS=1
 PROMPT='%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg[cyan]%}%c%{$reset_color%}%b '
 if declare -f __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg_bold[cyan]%}%c%b' '%{$reset_color%} ' ' (%s)'
+    __git_ps1 '%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg_bold[blue]%}%c%b' '%{$reset_color%} ' ' (%s)'
   }
 fi
 
