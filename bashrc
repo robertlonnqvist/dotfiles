@@ -101,7 +101,6 @@ command -v keychain >/dev/null 2>&1 && eval "$(keychain --eval --quiet id_rsa)"
 
 # aliases
 alias tree="tree -C"
-alias mysql-drop-testdbs='mysql -u root -e "show databases" --batch --column-names=false|grep ^test_|xargs -n 1 -I{} mysql -u root -e "drop database {}"'
 alias python-http-server="python -m SimpleHTTPServer"
 alias myip="curl ifconfig.co"
 alias grep="grep --color=auto"
