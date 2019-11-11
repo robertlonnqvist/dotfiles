@@ -42,6 +42,8 @@ bindkey '^U' backward-kill-line
 autoload -z edit-command-line
 zle -N edit-command-line
 bindkey '^X^E' edit-command-line
+# Use Shift-Escape for reverse menu complete
+bindkey '^[[Z' reverse-menu-complete
 
 # paths
 declare -U path
@@ -109,7 +111,6 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:*:users' ignored-patterns '_*'
 zstyle ':completion::complete:*' use-cache on
 zstyle ':completion::complete:*' cache-path "${HOME}/.zcompcache"
-zstyle ':completion:*' completer _complete _match _approximate
 
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors
