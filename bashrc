@@ -5,7 +5,7 @@ fi
 export GOPATH=${HOME}/Development/go
 
 # path modifications
-for p in ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH}/bin; do
+for p in ${HOME}/.local/.bin ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH}/bin; do
   if [[ -d "${p}" ]] && [[ ":${PATH}:" != *":${p}:"* ]]; then
     PATH="${p}:${PATH}"
   fi
