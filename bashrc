@@ -124,3 +124,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
 else
   alias ls="ls --color=auto -Fh"
 fi
+
+if [[ -f ~/.bashrc.local ]]; then
+  . ~/.bashrc.local
+fi
