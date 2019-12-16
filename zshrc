@@ -1,10 +1,5 @@
 
-export GOPATH=${HOME}/Development/go
-
 export EDITOR=vim
-
-# no forkedbooter popups in maven
-export MAVEN_OPTS="-Djava.awt.headless=true"
 
 # history
 HISTSIZE=10000
@@ -56,8 +51,8 @@ fi
 if [[ -d "${HOME}/.npm-packages/bin" ]]; then
   path=("${HOME}/.npm-packages/bin" $path[@])
 fi
-if [[ -d "${GOPATH}/bin" ]]; then
-  path=("${GOPATH}/bin" $path[@])
+if [[ -d "${GOPATH:-go}/bin" ]]; then
+  path=("${GOPATH:-go}/bin" $path[@])
 fi
 export PATH
 

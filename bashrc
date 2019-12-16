@@ -2,10 +2,8 @@ if [[ -f /etc/bashrc ]]; then
   . /etc/bashrc
 fi
 
-export GOPATH=${HOME}/Development/go
-
 # path modifications
-for p in ${HOME}/.local/.bin ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH}/bin; do
+for p in ${HOME}/.local/.bin ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH:-go}/bin; do
   if [[ -d "${p}" ]] && [[ ":${PATH}:" != *":${p}:"* ]]; then
     PATH="${p}:${PATH}"
   fi
@@ -15,9 +13,6 @@ export PATH
 
 # my editor
 export EDITOR=vim
-
-# no forkedbooter popups in maven
-export MAVEN_OPTS="-Djava.awt.headless=true"
 
 # ignore dups and spaces in history
 HISTCONTROL=ignoreboth
