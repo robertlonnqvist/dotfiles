@@ -141,9 +141,6 @@ if declare -f __git_ps1 2>&1 >/dev/null ; then
   }
 fi
 
-# if keychain is installed use it
-command -v keychain >/dev/null 2>&1 && eval "$(keychain --eval --quiet id_rsa)"
-
 if [[ -f ~/.zshrc.local ]]; then
   . ~/.zshrc.local
 fi

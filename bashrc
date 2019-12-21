@@ -91,9 +91,6 @@ if declare -f __git_ps1 >/dev/null 2>&1 ; then
   PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]> \[\e[01;34m\]\W\[\e[00m\]" " " " (%s)"'
 fi
 
-# if keychain is installed use it
-command -v keychain >/dev/null 2>&1 && eval "$(keychain --eval --quiet id_rsa)"
-
 # aliases
 alias tree="tree -C"
 alias python-http-server="python -m SimpleHTTPServer"
