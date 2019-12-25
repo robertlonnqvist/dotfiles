@@ -42,29 +42,16 @@ __exit_status_color() {
 }
 
 # completions
-if command -v >/dev/null 2>&1; then
-  if [[ -d /usr/local/etc/bash_completion.d ]]; then
-    for p in /usr/local/etc/bash_completion.d/*; do
-      if [[ -f "${p}" ]]; then
-        . "${p}"
-      fi
-    done
-    unset p
-  fi
-  if [[ -f /usr/local/etc/profile.d/bash_completion.sh ]]; then
-    . /usr/local/etc/profile.d/bash_completion.sh
-  fi
-elif [[ -f /usr/share/bash-completion/bash_completion ]]; then
-  . /usr/share/bash-completion/bash_completion
+if [[ -d /usr/local/etc/bash_completion.d ]]; then
+  export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
 fi
 
-if [[ -d ${HOME}/.bash_completion.d ]]; then
-  for p in ${HOME}/.bash_completion.d/*; do
-    if [[ -f "${p}" ]]; then
-      . "${p}"
-    fi
-  done
-  unset p
+if [[ -f /usr/local/etc/profile.d/bash_completion.sh ]]; then
+  . /usr/local/etc/profile.d/bash_completion.sh
+fi
+
+if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+  . /usr/share/bash-completion/bash_completion
 fi
 
 # if no git prompt has been loaded, load one.
