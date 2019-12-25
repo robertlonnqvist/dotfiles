@@ -42,14 +42,14 @@ bindkey '^[[Z' reverse-menu-complete
 
 # paths
 declare -U path
-if [[ -d "${HOME}/.local/bin" ]]; then
-  path=("${HOME}/.local/bin" $path[@])
+if [[ -d ~/.local/bin ]]; then
+  path=(~/.local/bin $path[@])
 fi
-if [[ -d "${HOME}/.bin" ]]; then
-  path=("${HOME}/.bin" $path[@])
+if [[ -d ~/.bin ]]; then
+  path=(~/.bin $path[@])
 fi
-if [[ -d "${HOME}/.npm-packages/bin" ]]; then
-  path=("${HOME}/.npm-packages/bin" $path[@])
+if [[ -d ~/.npm-packages/bin ]]; then
+  path=(~/.npm-packages/bin $path[@])
 fi
 if [[ -d "${GOPATH:-go}/bin" ]]; then
   path=("${GOPATH:-go}/bin" $path[@])
@@ -66,10 +66,6 @@ alias fgrep="fgrep --color=auto"
 alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
-
-if [[ -f ~/.dir_colors ]]; then
-  eval "$(dircolors -b ~/.dir_colors)"
-fi
 
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
@@ -108,7 +104,7 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:
 zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:*:users' ignored-patterns '_*'
 zstyle ':completion::complete:*' use-cache on
-zstyle ':completion::complete:*' cache-path "${HOME}/.zcompcache"
+zstyle ':completion::complete:*' cache-path ~/.zcompcache
 
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors

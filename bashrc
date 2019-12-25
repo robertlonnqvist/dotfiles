@@ -3,7 +3,7 @@ if [[ -f /etc/bashrc ]]; then
 fi
 
 # path modifications
-for p in ${HOME}/.local/.bin ${HOME}/.bin ${HOME}/.npm-packages/bin ${GOPATH:-go}/bin; do
+for p in ~/.local/.bin ~/.bin ~/.npm-packages/bin ${GOPATH:-go}/bin; do
   if [[ -d "${p}" ]] && [[ ":${PATH}:" != *":${p}:"* ]]; then
     PATH="${p}:${PATH}"
   fi
