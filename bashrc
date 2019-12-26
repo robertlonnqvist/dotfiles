@@ -37,10 +37,6 @@ man() {
       man "$@"
 }
 
-__exit_status_color() {
-  if [[ "$?" == "0" ]]; then echo -e "\e[01;32m"; else echo -e "\e[01;31m"; fi
-}
-
 # completions
 if [[ -d /usr/local/etc/bash_completion.d ]]; then
   export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
@@ -67,16 +63,37 @@ if ! declare -f __git_ps1 >/dev/null 2>&1 ; then
   fi
 fi
 
-PS1='\[$(__exit_status_color)\]> \[\e[01;34m\]\W\[\e[00m\] '
-if declare -f __git_ps1 >/dev/null 2>&1 ; then
-  # prompt setup
-  GIT_PS1_SHOWDIRTYSTATE=1
-  GIT_PS1_SHOWUPSTREAM=auto
-  GIT_PS1_SHOWSTASHSTATE=1
-  GIT_PS1_SHOWUNTRACKEDFILES=1
-  GIT_PS1_SHOWCOLORHINTS=1
-  PROMPT_COMMAND='__git_ps1 "\[$(__exit_status_color)\]> \[\e[01;34m\]\W\[\e[00m\]" " " " (%s)"'
-fi
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWUPSTREAM=auto
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_SHOWCOLORHINTS=1
+
+__prompt_command() {
+  local exit_code=$?
+
+  local prompt=''
+
+  if [[ -n "${VIRTUAL_ENV}" ]]; then
+    prompt+="(${VIRTUAL_ENV##*/}) "
+  fi
+
+  if [[ ${exit_code} -eq 0 ]]; then
+    prompt+='\[\e[01;32m\]';
+  else
+    prompt+='\[\e[01;31m\]';
+  fi
+
+  prompt+='> \[\e[01;34m\]\W\[\e[00m\]'
+
+  if declare -f __git_ps1 >/dev/null 2>&1 ; then
+    __git_ps1 "${prompt}" " " " (%s)"
+  else
+    PS1="${prompt} "
+  fi
+}
+
+PROMPT_COMMAND=__prompt_command
 
 # aliases
 alias tree="tree -C"
