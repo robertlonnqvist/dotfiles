@@ -48,8 +48,8 @@ fi
 if [[ -d ~/.bin ]]; then
   path=(~/.bin $path[@])
 fi
-if [[ -d ~/.npm-packages/bin ]]; then
-  path=(~/.npm-packages/bin $path[@])
+if [[ -d ~/.node_modules/bin ]]; then
+  path=(~/.node_modules/bin $path[@])
 fi
 if [[ -d "${GOPATH:-go}/bin" ]]; then
   path=("${GOPATH:-go}/bin" $path[@])
