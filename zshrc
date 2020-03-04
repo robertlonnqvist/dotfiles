@@ -51,8 +51,8 @@ fi
 if [[ -d ~/.node_modules/bin ]]; then
   path=(~/.node_modules/bin $path[@])
 fi
-if [[ -d "${GOPATH:-go}/bin" ]]; then
-  path=("${GOPATH:-go}/bin" $path[@])
+if [[ -d "${GOPATH:-~/go}/bin" ]]; then
+  path=("${GOPATH:-~/go}/bin" $path[@])
 fi
 export PATH
 
