@@ -38,8 +38,8 @@ man() {
 }
 
 # completions
-if [[ -d /usr/local/etc/bash_completion.d ]]; then
-  export BASH_COMPLETION_COMPAT_DIR="/usr/local/etc/bash_completion.d"
+if [[ -f /usr/local/etc/profile.d/bash_completion.sh ]]; then
+  . /usr/local/etc/profile.d/bash_completion.sh
 fi
 
 if [[ -f /usr/local/etc/profile.d/bash_completion.sh ]]; then
