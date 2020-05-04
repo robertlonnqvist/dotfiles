@@ -79,12 +79,16 @@ __prompt_command() {
   fi
 
   if [[ ${exit_code} -eq 0 ]]; then
-    prompt+='\[\e[01;32m\]';
+    prompt+='\[\e[01;32m\]> ';
   else
-    prompt+='\[\e[01;31m\]';
+    prompt+='\[\e[01;31m\]> ';
   fi
 
-  prompt+='> \[\e[01;34m\]\W\[\e[00m\]'
+  if [[ -n "${SSH_TTY}" ]]; then
+    prompt+='\[\033[01;32m\]\h '
+  fi
+
+  prompt+='\[\e[01;34m\]\W\[\e[00m\]'
 
   if declare -f __git_ps1 >/dev/null 2>&1 ; then
     __git_ps1 "${prompt}" " " " (%s)"
