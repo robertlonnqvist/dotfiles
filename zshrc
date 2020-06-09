@@ -1,5 +1,5 @@
 
-export EDITOR=vim
+export EDITOR=nvim
 
 # history
 HISTSIZE=10000
@@ -66,6 +66,7 @@ alias fgrep="fgrep --color=auto"
 alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
+alias vim="nvim"
 
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then
