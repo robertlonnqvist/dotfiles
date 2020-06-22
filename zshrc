@@ -18,10 +18,12 @@ setopt extended_glob
 autoload -U select-word-style && select-word-style bash
 # emacs bindings
 bindkey -e
-# ctrl-right - move forward one word
+# use ctrl left/right
 bindkey '^[[1;5C' forward-word
-# ctrl-left - move backward one word
 bindkey '^[[1;5D' backward-word
+# use alt left/right
+bindkey "^[[1;3C" forward-word
+bindkey "^[[1;3D" backward-word
 # forward delete
 bindkey '^[[3~' delete-char
 bindkey '^[3;5~' delete-char
@@ -111,7 +113,7 @@ autoload -Uz compinit && compinit
 autoload -Uz colors && colors
 
 # prompt
-setopt promptsubst
+setopt prompt_subst
 
 if ! declare -f __git_ps1 2>&1 >/dev/null ; then
   if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
@@ -131,10 +133,10 @@ GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWCOLORHINTS=1
 
-PROMPT='%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg[cyan]%}%c%{$reset_color%}%b '
+PROMPT='%{$fg_bold[blue]%}%c%b %(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}'
 if declare -f __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%(?:%{$fg_bold[green]%}> :%{$fg_bold[red]%}> %s)%{$fg_bold[blue]%}%c%b' '%{$reset_color%} ' ' (%s)'
+    __git_ps1 '%{$fg_bold[blue]%}%c%b ' '%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}' '%s '
   }
 fi
 
