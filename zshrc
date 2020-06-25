@@ -133,10 +133,27 @@ GIT_PS1_SHOWSTASHSTATE=1
 GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_SHOWCOLORHINTS=1
 
-PROMPT='%{$fg_bold[blue]%}%c%b %(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}'
+__build_prompt() {
+
+    local temp=''
+
+    if [[ -n "${VIRTUAL_ENV}" ]]; then
+      temp+="(${VIRTUAL_ENV##*/}) "
+    fi
+
+    if [[ -n "${SSH_TTY}" ]]; then
+      temp+="%{$fg_bold[green]%}%n@%m "
+    fi
+
+    temp+="%{$fg_bold[blue]%}%c "
+
+    echo "${temp}"
+}
+
+PROMPT="$(__build_prompt)%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}"
 if declare -f __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 '%{$fg_bold[blue]%}%c%b ' '%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}' '%s '
+    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}' '%s '
   }
 fi
 
