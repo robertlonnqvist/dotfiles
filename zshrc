@@ -75,6 +75,11 @@ if [[ "$(uname)" == "Darwin" ]]; then
   export CLICOLOR=1
   export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
+
+  # https://github.com/Homebrew/homebrew-core/issues/33275
+  fpath[(i)/usr/local/share/zsh/site-functions]=()
+  fpath+=(/usr/local/share/zsh/site-functions)
+
 else
   alias ls="ls --color=auto -Fh"
 fi
