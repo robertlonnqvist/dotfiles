@@ -149,7 +149,7 @@ zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' use-ip true
 # case insensitive completion
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:*:*:users' ignored-patterns '_*'
 zstyle ':completion::complete:*' use-cache on
