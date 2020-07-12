@@ -196,10 +196,10 @@ __build_prompt() {
     echo "${temp}"
 }
 
-PROMPT="$(__build_prompt)%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}"
+PROMPT="$(__build_prompt)%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}"
 if declare -f __git_ps1 2>&1 >/dev/null ; then
   precmd() {
-    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[magenta]%}:%{$fg_bold[red]%}%s)❯ %{$reset_color%}' '%s '
+    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}' '%s '
   }
 fi
 
