@@ -72,28 +72,30 @@ GIT_PS1_SHOWCOLORHINTS=1
 __prompt_command() {
   local exit_code=$?
 
+  local exit_prompt=''
+  
+  if [[ ${exit_code} -eq 0 ]]; then
+    exit_prompt+='\[\e[01;32m\]$\[\e[00m\] ';
+  else
+    exit_prompt+='\[\e[01;31m\]$\[\e[00m\] ';
+  fi
+  
   local prompt=''
 
   if [[ -n "${VIRTUAL_ENV}" ]]; then
     prompt+="(${VIRTUAL_ENV##*/}) "
   fi
 
-  if [[ ${exit_code} -eq 0 ]]; then
-    prompt+='\[\e[01;32m\]> ';
-  else
-    prompt+='\[\e[01;31m\]> ';
-  fi
-
   if [[ -n "${SSH_TTY}" ]]; then
     prompt+='\[\033[01;32m\]\h '
   fi
 
-  prompt+='\[\e[01;34m\]\W\[\e[00m\]'
+  prompt+='\[\e[01;34m\]\W\[\e[00m\] '
 
   if declare -f __git_ps1 >/dev/null 2>&1 ; then
-    __git_ps1 "${prompt}" " " " (%s)"
+    __git_ps1 "${prompt}" "${exit_prompt}" "%s "
   else
-    PS1="${prompt} "
+    PS1="${prompt}${exit_prompt}"
   fi
 }
 
