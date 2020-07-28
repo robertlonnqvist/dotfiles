@@ -89,14 +89,14 @@ declare -U path
 if [[ -d ~/.local/bin ]]; then
   path=(~/.local/bin $path[@])
 fi
-if [[ -d ~/.bin ]]; then
-  path=(~/.bin $path[@])
-fi
 if [[ -d ~/.node_modules/bin ]]; then
   path=(~/.node_modules/bin $path[@])
 fi
 if [[ -d "${GOPATH:-~/go}/bin" ]]; then
   path=("${GOPATH:-~/go}/bin" $path[@])
+fi
+if [[ -d ~/.cargo/bin ]]; then
+  path=(~/.cargo/bin $path[@])
 fi
 export PATH
 
