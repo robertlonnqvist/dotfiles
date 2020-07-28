@@ -146,14 +146,27 @@ man() {
 # completion
 setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' users root ${USER}
 zstyle ':completion:*' use-ip true
-# case insensitive completion
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
-zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*:functions' ignored-patterns '_*'
-zstyle ':completion:*:*:*:users' ignored-patterns '_*'
 zstyle ':completion::complete:*' use-cache on
 zstyle ':completion::complete:*' cache-path ~/.zcompcache
+
+# case insensitive completion
+unsetopt case_glob
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# complete . and .. special directories
+zstyle ':completion:*' special-dirs true
+
+# kill
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+
+# man
+zstyle ':completion:*:manuals' separate-sections true
+zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors
