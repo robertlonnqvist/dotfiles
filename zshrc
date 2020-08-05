@@ -1,6 +1,3 @@
-
-export EDITOR=nvim
-
 # history
 HISTSIZE=10000
 SAVEHIST=10000
@@ -100,6 +97,14 @@ if [[ -d ~/.cargo/bin ]]; then
 fi
 export PATH
 
+# my editor
+if command -v nvim > /dev/null; then
+  export EDITOR=nvim
+  alias vim="nvim"
+else
+  export EDITOR=vim
+fi
+
 # aliases
 alias tree="tree -C"
 alias python-http-server="python -m SimpleHTTPServer"
@@ -110,7 +115,6 @@ alias fgrep="fgrep --color=auto"
 alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
-alias vim="nvim"
 
 # platform specific stuff
 if [[ "$(uname)" == "Darwin" ]]; then

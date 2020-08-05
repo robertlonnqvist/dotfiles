@@ -12,7 +12,12 @@ unset p
 export PATH
 
 # my editor
-export EDITOR=nvim
+if command -v nvim > /dev/null; then
+  export EDITOR=nvim
+  alias vim="nvim"
+else
+  export EDITOR=vim
+fi
 
 # ignore dups and spaces in history
 HISTCONTROL=ignoreboth
@@ -111,7 +116,6 @@ alias fgrep="fgrep --color=auto"
 alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
-alias vim="nvim"
 
 if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
