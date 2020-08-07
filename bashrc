@@ -12,12 +12,7 @@ unset p
 export PATH
 
 # my editor
-if command -v nvim > /dev/null; then
-  export EDITOR=nvim
-  alias vim="nvim"
-else
-  export EDITOR=vim
-fi
+export EDITOR=vim
 
 # ignore dups and spaces in history
 HISTCONTROL=ignoreboth

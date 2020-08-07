@@ -98,12 +98,7 @@ fi
 export PATH
 
 # my editor
-if command -v nvim > /dev/null; then
-  export EDITOR=nvim
-  alias vim="nvim"
-else
-  export EDITOR=vim
-fi
+export EDITOR=vim
 
 # aliases
 alias tree="tree -C"
