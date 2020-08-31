@@ -112,7 +112,7 @@ alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
 # platform specific stuff
-if [[ "$(uname)" == "Darwin" ]]; then
+if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
   export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
@@ -174,23 +174,13 @@ autoload -Uz colors && colors
 # prompt
 setopt prompt_subst
 
-if ! declare -f __git_ps1 2>&1 >/dev/null ; then
-  if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
-    . /usr/local/etc/bash_completion.d/git-prompt.sh
-  elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
-    . /usr/share/git/completion/git-prompt.sh
-  elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    . /usr/share/git-core/contrib/completion/git-prompt.sh
-  elif [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
-    . /usr/lib/git-core/git-sh-prompt
-  fi
-fi
+autoload -Uz vcs_info
 
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWUPSTREAM=auto
-GIT_PS1_SHOWSTASHSTATE=1
-GIT_PS1_SHOWUNTRACKEDFILES=1
-GIT_PS1_SHOWCOLORHINTS=1
+zstyle ':vcs_info:git*' formats "%{$fg[grey]%}%s %{$reset_color%}%r/%S%{$fg[grey]%} %{$fg[blue]%}%b%{$reset_color%}%m%u%c%{$reset_color%} "
+
+precmd() {
+    vcs_info
+}
 
 __build_prompt() {
 
@@ -209,12 +199,7 @@ __build_prompt() {
     echo "${temp}"
 }
 
-PROMPT="$(__build_prompt)%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}"
-if declare -f __git_ps1 2>&1 >/dev/null ; then
-  precmd() {
-    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}' '%s '
-  }
-fi
+PROMPT='$(__build_prompt)%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ ${vcs_info_msg_0_} %{$reset_color%}'
 
 if [[ -f ~/.zshrc.local ]]; then
   . ~/.zshrc.local

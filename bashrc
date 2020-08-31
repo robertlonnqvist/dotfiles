@@ -119,7 +119,7 @@ else
 fi
 
 # platform specific stuff
-if [[ "$(uname)" == "Darwin" ]]; then
+if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
   export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
