@@ -120,7 +120,9 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   # https://github.com/Homebrew/homebrew-core/issues/33275
   fpath[(i)/usr/local/share/zsh/site-functions]=()
   fpath+=(/usr/local/share/zsh/site-functions)
-
+  if [[ -e /usr/local/share/zsh-completions ]]; then
+    fpath+=(/usr/local/share/zsh-completions)
+  fi
 else
   alias ls="ls --color=auto -Fh"
 fi
