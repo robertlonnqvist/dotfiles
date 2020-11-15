@@ -127,6 +127,6 @@ else
   alias ls="ls --color=auto -Fh"
 fi
 
-if [[ -f ~/.bashrc.local ]]; then
-  . ~/.bashrc.local
+if [[ -f ~/.bashrc.local.bash ]]; then
+  . ~/.bashrc.local.bash
 fi

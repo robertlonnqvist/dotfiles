@@ -218,6 +218,6 @@ if declare -f __git_ps1 2>&1 >/dev/null ; then
   }
 fi
 
-if [[ -f ~/.zshrc.local ]]; then
-  . ~/.zshrc.local
+if [[ -f ~/.zshrc.local.zsh ]]; then
+  . ~/.zshrc.local.zsh
 fi
