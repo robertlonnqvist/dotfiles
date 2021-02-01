@@ -95,6 +95,9 @@ fi
 if [[ -d ~/.cargo/bin ]]; then
   path=(~/.cargo/bin $path[@])
 fi
+if [[ -d /opt/homebrew/bin ]]; then
+  path=(/opt/homebrew/bin $path[@])
+fi
 export PATH
 
 # my editor
@@ -120,9 +123,16 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   # https://github.com/Homebrew/homebrew-core/issues/33275
   fpath[(i)/usr/local/share/zsh/site-functions]=()
   fpath+=(/usr/local/share/zsh/site-functions)
+  fpath[(i)/opt/homebrew/share/zsh/site-functions]=()
+  fpath+=(/opt/homebrew/share/zsh/site-functions)
+
   if [[ -e /usr/local/share/zsh-completions ]]; then
     fpath+=(/usr/local/share/zsh-completions)
   fi
+  if [[ -e /opt/homebrew/share/zsh-completions ]]; then
+    fpath+=(/opt/homebrew/share/zsh-completions)
+  fi
+
 else
   alias ls="ls --color=auto -Fh"
 fi
@@ -177,7 +187,9 @@ autoload -Uz colors && colors
 setopt prompt_subst
 
 if ! declare -f __git_ps1 2>&1 >/dev/null ; then
-  if [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
+  if [[ -e /opt/homebrew/etc/bash_completion.d/git-prompt.sh ]]; then
+    . /opt/homebrew/etc/bash_completion.d/git-prompt.sh
+  elif [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
     . /usr/local/etc/bash_completion.d/git-prompt.sh
   elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
     . /usr/share/git/completion/git-prompt.sh
