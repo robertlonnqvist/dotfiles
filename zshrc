@@ -122,9 +122,14 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
 
   # https://github.com/Homebrew/homebrew-core/issues/33275
   fpath[(i)/usr/local/share/zsh/site-functions]=()
-  fpath+=(/usr/local/share/zsh/site-functions)
+  if [[ -e /usr/local/share/zsh/site-functions ]]; then
+    fpath+=(/usr/local/share/zsh/site-functions)
+  fi
   fpath[(i)/opt/homebrew/share/zsh/site-functions]=()
-  fpath+=(/opt/homebrew/share/zsh/site-functions)
+  if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
+    fpath+=(/opt/homebrew/share/zsh/site-functions)
+  fi
+  # end fix
 
   if [[ -e /usr/local/share/zsh-completions ]]; then
     fpath+=(/usr/local/share/zsh-completions)
