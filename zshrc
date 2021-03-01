@@ -14,8 +14,32 @@ setopt extended_glob
 # keybindings (use sed -n l)
 # delete path segments
 autoload -U select-word-style && select-word-style bash
-# emacs bindings
-bindkey -e
+bindkey -v
+export KEYTIMEOUT=1
+
+bindkey -v '^?' backward-delete-char
+
+# Change cursor shape for different vi modes.
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] ||
+     [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] ||
+       [[ ${KEYMAP} == viins ]] ||
+       [[ ${KEYMAP} = '' ]] ||
+       [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+zle -N zle-keymap-select
+zle-line-init() {
+    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+    echo -ne "\e[5 q"
+}
+zle -N zle-line-init
+echo -ne '\e[5 q' # Use beam shape cursor on startup.
+preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
@@ -187,53 +211,6 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors
-
-# prompt
-setopt prompt_subst
-
-if ! declare -f __git_ps1 2>&1 >/dev/null ; then
-  if [[ -e /opt/homebrew/etc/bash_completion.d/git-prompt.sh ]]; then
-    . /opt/homebrew/etc/bash_completion.d/git-prompt.sh
-  elif [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
-    . /usr/local/etc/bash_completion.d/git-prompt.sh
-  elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
-    . /usr/share/git/completion/git-prompt.sh
-  elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    . /usr/share/git-core/contrib/completion/git-prompt.sh
-  elif [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
-    . /usr/lib/git-core/git-sh-prompt
-  fi
-fi
-
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWUPSTREAM=auto
-GIT_PS1_SHOWSTASHSTATE=1
-GIT_PS1_SHOWUNTRACKEDFILES=1
-GIT_PS1_SHOWCOLORHINTS=1
-
-__build_prompt() {
-
-    local temp=''
-
-    if [[ -n "${VIRTUAL_ENV}" ]]; then
-      temp+="(${VIRTUAL_ENV##*/}) "
-    fi
-
-    if [[ -n "${SSH_TTY}" ]]; then
-      temp+="%{$fg_bold[green]%}%n@%m "
-    fi
-
-    temp+="%{$fg_bold[blue]%}%c "
-
-    echo "${temp}"
-}
-
-PROMPT="$(__build_prompt)%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}"
-if declare -f __git_ps1 2>&1 >/dev/null ; then
-  precmd() {
-    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}' '%s '
-  }
-fi
 
 if [[ -f ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
