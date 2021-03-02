@@ -17,8 +17,6 @@ autoload -U select-word-style && select-word-style bash
 bindkey -v
 export KEYTIMEOUT=1
 
-bindkey -v '^?' backward-delete-char
-
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
   if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
@@ -42,7 +40,23 @@ bindkey -M vicmd '?' history-incremental-pattern-search-forward
 
 # set up for insert mode too
 bindkey -M viins '^R' history-incremental-pattern-search-backward
-bindkey -M viins '^F' history-incremental-pattern-search-forward
+bindkey -M viins '^S' history-incremental-pattern-search-forward
+
+# some emacs standard shortcuts
+bindkey -M viins '^U' backward-kill-line
+bindkey -M viins '^W' backward-kill-word
+bindkey -M viins '^A' beginning-of-line
+bindkey -M viins '^K' kill-line
+bindkey -M viins '^E' end-of-line
+
+# allow ctrl-p, ctrl-n for navigate history (standard behaviour)
+bindkey '^P' up-history
+bindkey '^N' down-history
+
+# allow vv to edit the command line (standard behaviour)
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd '^V' edit-command-line
 
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
@@ -93,20 +107,12 @@ if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
 	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
 fi
 
-# ctrl+u - delete from cursor to the beginning of the line
-bindkey '^u' backward-kill-line
-
 # up down history search
 autoload -Uz history-search-end
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   history-beginning-search-backward-end
 [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" history-beginning-search-forward-end
-
-# enable edit command in editor
-autoload -z edit-command-line
-zle -N edit-command-line
-bindkey '^X^E' edit-command-line
 
 # paths
 declare -U path
