@@ -36,6 +36,14 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
+# Search backwards and forwards with a pattern
+bindkey -M vicmd '/' history-incremental-pattern-search-backward
+bindkey -M vicmd '?' history-incremental-pattern-search-forward
+
+# set up for insert mode too
+bindkey -M viins '^R' history-incremental-pattern-search-backward
+bindkey -M viins '^F' history-incremental-pattern-search-forward
+
 # create a zkbd compatible hash;
 # to add other keys to this hash, see: man 5 terminfo
 typeset -g -A key
