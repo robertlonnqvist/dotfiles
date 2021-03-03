@@ -8,7 +8,7 @@ for p in ~/.local/bin ~/.node_modules/bin ${GOPATH:-~/go}/bin ~/.cargo/bin; do
     PATH="${p}:${PATH}"
   fi
 done
-unset p
+unset -v p
 export PATH
 
 # my editor
