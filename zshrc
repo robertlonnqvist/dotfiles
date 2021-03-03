@@ -77,17 +77,17 @@ fi
 if [[ -d /opt/homebrew/sbin ]]; then
   path=(/opt/homebrew/sbin $path[@])
 fi
-if [[ -d ~/.local/bin ]]; then
-  path=(~/.local/bin $path[@])
+if [[ -d ${GOPATH:-~/go}/bin ]]; then
+  path=(${GOPATH:-~/go}/bin $path[@])
+fi
+if [[ -d ~/.cargo/bin ]]; then
+  path=(~/.cargo/bin $path[@])
 fi
 if [[ -d ~/.node_modules/bin ]]; then
   path=(~/.node_modules/bin $path[@])
 fi
-if [[ -d "${GOPATH:-${HOME}/go}/bin" ]]; then
-  path=("${GOPATH:-${HOME}/go}/bin" $path[@])
-fi
-if [[ -d ~/.cargo/bin ]]; then
-  path=(~/.cargo/bin $path[@])
+if [[ -d ~/.local/bin ]]; then
+  path=(~/.local/bin $path[@])
 fi
 export PATH
 
