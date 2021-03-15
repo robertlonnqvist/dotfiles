@@ -65,30 +65,19 @@ bindkey "^?" backward-delete-char
 
 # paths
 declare -U path
-if [[ -d /usr/local/bin ]]; then
-  path=(/usr/local/bin $path[@])
-fi
-if [[ -d /usr/local/sbin ]]; then
-  path=(/usr/local/sbin $path[@])
-fi
-if [[ -d /opt/homebrew/bin ]]; then
-  path=(/opt/homebrew/bin $path[@])
-fi
-if [[ -d /opt/homebrew/sbin ]]; then
-  path=(/opt/homebrew/sbin $path[@])
-fi
-if [[ -d ${GOPATH:-~/go}/bin ]]; then
-  path=(${GOPATH:-~/go}/bin $path[@])
-fi
-if [[ -d ~/.cargo/bin ]]; then
-  path=(~/.cargo/bin $path[@])
-fi
-if [[ -d ~/.node_modules/bin ]]; then
-  path=(~/.node_modules/bin $path[@])
-fi
-if [[ -d ~/.local/bin ]]; then
-  path=(~/.local/bin $path[@])
-fi
+for p in /usr/local/bin \
+         /usr/local/sbin \
+         /opt/homebrew/bin \
+         /opt/homebrew/sbin \
+         "${GOPATH:-~/go}/bin" \
+         ~/.cargo/bin \
+         ~/.node_modules/bin \
+         ~/.local/bin; do
+  if [[ -d "${p}" ]]; then
+    path=("${p}" $path[@])
+  fi
+done
+unset p
 export PATH
 
 # aliases
@@ -120,6 +109,8 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
     fpath+=("${brewPrefix}/share/zsh-completions")
   fi
+
+  unset brewPrefix
 
 else
   alias ls="ls --color=auto -Fh"
