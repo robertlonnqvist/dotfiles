@@ -74,7 +74,7 @@ for p in /usr/local/bin \
          ~/.node_modules/bin \
          ~/.local/bin; do
   if [[ -d "${p}" ]]; then
-    path=("${p}" $path[@])
+    path=("${p}" "${path[@]}")
   fi
 done
 unset p
@@ -137,7 +137,7 @@ man() {
 # completion
 setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' users root ${USER}
+zstyle ':completion:*' users root "${USER}"
 zstyle ':completion:*' use-ip true
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
 zstyle ':completion:*:functions' ignored-patterns '_*'
