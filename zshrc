@@ -99,16 +99,16 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
 
   brewPrefix="$(brew --prefix)"
 
+  if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
+    fpath+=("${brewPrefix}/share/zsh-completions")
+  fi
+
   # https://github.com/Homebrew/homebrew-core/issues/33275
   fpath[(i)${brewPrefix}/share/zsh/site-functions]=()
   if [[ -e "${brewPrefix}/share/zsh/site-functions" ]]; then
     fpath+=("${brewPrefix}/share/zsh/site-functions")
   fi
   # end fix
-
-  if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
-    fpath+=("${brewPrefix}/share/zsh-completions")
-  fi
 
   unset brewPrefix
 
