@@ -69,7 +69,7 @@ for p in /usr/local/bin \
          /usr/local/sbin \
          /opt/homebrew/bin \
          /opt/homebrew/sbin \
-         "${GOPATH:-~/go}/bin" \
+         "${GOPATH:-${HOME}/go}/bin" \
          ~/.cargo/bin \
          ~/.node_modules/bin \
          ~/.local/bin; do
