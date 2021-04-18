@@ -64,7 +64,7 @@ bindkey -M vicmd '^V' edit-command-line
 bindkey "^?" backward-delete-char
 
 # paths
-declare -U path
+declare -U path fpath
 for p in /usr/local/bin \
          /usr/local/sbin \
          /opt/homebrew/bin \
