@@ -61,7 +61,11 @@ zle -N edit-command-line
 bindkey -M vicmd '^V' edit-command-line
 
 # fix backspace bug when switching modes
-bindkey "^?" backward-delete-char
+bindkey '^?' backward-delete-char
+
+# fix shift-tab backward completion
+bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
+bindkey -M vicmd "${terminfo[kcbt]}" reverse-menu-complete
 
 # paths
 declare -U path fpath
