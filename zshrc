@@ -89,8 +89,8 @@ fi
 if [[ -d ~/.node_modules/bin ]]; then
   path=(~/.node_modules/bin $path[@])
 fi
-if [[ -d ${GOPATH:-~/go}/bin ]]; then
-  path=(${GOPATH:-~/go}/bin $path[@])
+if [[ -d "${GOPATH:-${HOME}/go}/bin" ]]; then
+  path=("${GOPATH:-${HOME}/go}/bin" $path[@])
 fi
 if [[ -d ~/.cargo/bin ]]; then
   path=(~/.cargo/bin $path[@])
@@ -105,7 +105,7 @@ export EDITOR=vim
 
 # aliases
 alias tree="tree -C"
-alias python-http-server="python -m SimpleHTTPServer"
+alias python-http-server="python3 -m http.server"
 alias myip="curl ifconfig.co"
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
