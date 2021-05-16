@@ -101,7 +101,7 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
 
-  brewPrefix="$(brew --prefix)"
+  brewPrefix="$(brew --prefix 2> /dev/null)"
 
   if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
     fpath+=("${brewPrefix}/share/zsh-completions")
@@ -164,7 +164,7 @@ autoload -Uz compinit && compinit
 autoload -Uz colors && colors
 
 if [[ "${OSTYPE}" == "darwin"* ]]; then
-  brewPrefix="$(brew --prefix)"
+  brewPrefix="$(brew --prefix 2> /dev/null)"
   if [[ -e "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     . "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
   fi
