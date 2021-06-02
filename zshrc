@@ -8,6 +8,9 @@ HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
+# Remove path separator from WORDCHARS.
+WORDCHARS=${WORDCHARS//[\/]}
+
 setopt append_history
 setopt hist_ignore_space
 setopt hist_ignore_dups
