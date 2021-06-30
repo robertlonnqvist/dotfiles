@@ -1,7 +1,15 @@
+export EDITOR=vim
+if [[ -z "${LANG}" ]]; then
+  export LANG=en_US.UTF-8
+fi
+
 # history
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
+
+# Remove path separator from WORDCHARS.
+WORDCHARS=${WORDCHARS//[\/]}
 
 setopt append_history
 setopt hist_ignore_space
@@ -11,97 +19,73 @@ setopt share_history
 setopt auto_cd
 setopt extended_glob
 
-# keybindings (use sed -n l)
-# delete path segments
-autoload -U select-word-style && select-word-style bash
-# emacs bindings
-bindkey -e
+bindkey -v
+export KEYTIMEOUT=1
 
-# create a zkbd compatible hash;
-# to add other keys to this hash, see: man 5 terminfo
-typeset -g -A key
+# Change cursor shape for different vi modes.
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+  elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ ${KEYMAP} = '' ]] || [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+zle-line-init() {
+    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+    echo -ne "\e[5 q"
+}
+zle -N zle-line-init
+echo -ne '\e[5 q' # Use beam shape cursor on startup.
+preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
-key[Home]="${terminfo[khome]}"
-key[End]="${terminfo[kend]}"
-key[Insert]="${terminfo[kich1]}"
-key[Backspace]="${terminfo[kbs]}"
-key[Delete]="${terminfo[kdch1]}"
-key[Up]="${terminfo[kcuu1]}"
-key[Down]="${terminfo[kcud1]}"
-key[Left]="${terminfo[kcub1]}"
-key[Right]="${terminfo[kcuf1]}"
-key[PageUp]="${terminfo[kpp]}"
-key[PageDown]="${terminfo[knp]}"
-key[Shift-Tab]="${terminfo[kcbt]}"
-key[Ctrl-Left]="${terminfo[kRIT5]}"
-key[Ctrl-Right]="${terminfo[kLFT5]}"
-key[Alt-Left]="${terminfo[kRIT3]}"
-key[Alt-Right]="${terminfo[kLFT3]}"
+# Search backwards and forwards with a pattern
+bindkey -M vicmd '/' history-incremental-pattern-search-backward
+bindkey -M vicmd '?' history-incremental-pattern-search-forward
 
-# setup key accordingly
-[[ -n "${key[Home]}"       ]] && bindkey -- "${key[Home]}"       beginning-of-line
-[[ -n "${key[End]}"        ]] && bindkey -- "${key[End]}"        end-of-line
-[[ -n "${key[Insert]}"     ]] && bindkey -- "${key[Insert]}"     overwrite-mode
-[[ -n "${key[Backspace]}"  ]] && bindkey -- "${key[Backspace]}"  backward-delete-char
-[[ -n "${key[Delete]}"     ]] && bindkey -- "${key[Delete]}"     delete-char
-[[ -n "${key[Up]}"         ]] && bindkey -- "${key[Up]}"         up-line-or-history
-[[ -n "${key[Down]}"       ]] && bindkey -- "${key[Down]}"       down-line-or-history
-[[ -n "${key[Left]}"       ]] && bindkey -- "${key[Left]}"       backward-char
-[[ -n "${key[Right]}"      ]] && bindkey -- "${key[Right]}"      forward-char
-[[ -n "${key[PageUp]}"     ]] && bindkey -- "${key[PageUp]}"     beginning-of-buffer-or-history
-[[ -n "${key[PageDown]}"   ]] && bindkey -- "${key[PageDown]}"   end-of-buffer-or-history
-[[ -n "${key[Shift-Tab]}"  ]] && bindkey -- "${key[Shift-Tab]}"  reverse-menu-complete
-[[ -n "${key[Ctrl-Left]}"  ]] && bindkey -- "${key[Ctrl-Left]}"  forward-word
-[[ -n "${key[Ctrl-Right]}" ]] && bindkey -- "${key[Ctrl-Right]}" backward-word
-[[ -n "${key[Alt-Left]}"   ]] && bindkey -- "${key[Alt-Left]}"   forward-word
-[[ -n "${key[Alt-Right]}"  ]] && bindkey -- "${key[Alt-Right]}"  backward-word
+# set up for insert mode too
+bindkey -M viins '^R' history-incremental-pattern-search-backward
+bindkey -M viins '^S' history-incremental-pattern-search-forward
 
-# Finally, make sure the terminal is in application mode, when zle is
-# active. Only then are the values from $terminfo valid.
-if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
-	autoload -Uz add-zle-hook-widget
-	function zle_application_mode_start { echoti smkx }
-	function zle_application_mode_stop { echoti rmkx }
-	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
-	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
-fi
+# some emacs standard shortcuts
+bindkey -M viins '^U' backward-kill-line
+bindkey -M viins '^W' backward-kill-word
+bindkey -M viins '^A' beginning-of-line
+bindkey -M viins '^K' kill-line
+bindkey -M viins '^E' end-of-line
 
-# ctrl+u - delete from cursor to the beginning of the line
-bindkey '^u' backward-kill-line
+# allow ctrl-p, ctrl-n for navigate history (standard behaviour)
+bindkey '^P' up-history
+bindkey '^N' down-history
 
-# up down history search
-autoload -Uz history-search-end
-zle -N history-beginning-search-backward-end history-search-end
-zle -N history-beginning-search-forward-end history-search-end
-[[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   history-beginning-search-backward-end
-[[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" history-beginning-search-forward-end
-
-# enable edit command in editor
-autoload -z edit-command-line
+# allow ctrl-v to edit the command line (standard behaviour)
+autoload -Uz edit-command-line
 zle -N edit-command-line
-bindkey '^X^E' edit-command-line
+bindkey -M vicmd '^V' edit-command-line
+
+# fix backspace bug when switching modes
+bindkey '^?' backward-delete-char
+
+# fix shift-tab backward completion
+bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
+bindkey -M vicmd "${terminfo[kcbt]}" reverse-menu-complete
 
 # paths
-declare -U path
-if [[ -d ~/.local/bin ]]; then
-  path=(~/.local/bin $path[@])
-fi
-if [[ -d ~/.node_modules/bin ]]; then
-  path=(~/.node_modules/bin $path[@])
-fi
-if [[ -d "${GOPATH:-${HOME}/go}/bin" ]]; then
-  path=("${GOPATH:-${HOME}/go}/bin" $path[@])
-fi
-if [[ -d ~/.cargo/bin ]]; then
-  path=(~/.cargo/bin $path[@])
-fi
-if [[ -d /opt/homebrew/bin ]]; then
-  path=(/opt/homebrew/bin $path[@])
-fi
+declare -U path fpath
+for p in /usr/local/bin \
+         /usr/local/sbin \
+         /opt/homebrew/bin \
+         /opt/homebrew/sbin \
+         "${GOPATH:-${HOME}/go}/bin" \
+         ~/.cargo/bin \
+         ~/.node_modules/bin \
+         ~/.local/bin; do
+  if [[ -d "${p}" ]]; then
+    path=("${p}" "${path[@]}")
+  fi
+done
+unset p
 export PATH
-
-# my editor
-export EDITOR=vim
 
 # aliases
 alias tree="tree -C"
@@ -120,23 +104,17 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
   alias ls="ls -GFh"
 
-  # https://github.com/Homebrew/homebrew-core/issues/33275
-  fpath[(i)/usr/local/share/zsh/site-functions]=()
-  if [[ -e /usr/local/share/zsh/site-functions ]]; then
-    fpath+=(/usr/local/share/zsh/site-functions)
-  fi
-  fpath[(i)/opt/homebrew/share/zsh/site-functions]=()
-  if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
-    fpath+=(/opt/homebrew/share/zsh/site-functions)
-  fi
-  # end fix
+  brewPrefix="$(brew --prefix 2> /dev/null)"
 
-  if [[ -e /usr/local/share/zsh-completions ]]; then
-    fpath+=(/usr/local/share/zsh-completions)
+  if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
+    fpath+=("${brewPrefix}/share/zsh-completions")
   fi
-  if [[ -e /opt/homebrew/share/zsh-completions ]]; then
-    fpath+=(/opt/homebrew/share/zsh-completions)
+
+  if [[ -e "${brewPrefix}/share/zsh/site-functions" ]]; then
+    fpath+=("${brewPrefix}/share/zsh/site-functions")
   fi
+
+  unset brewPrefix
 
 else
   alias ls="ls --color=auto -Fh"
@@ -163,7 +141,7 @@ man() {
 # completion
 setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
-zstyle ':completion:*' users root ${USER}
+zstyle ':completion:*' users root "${USER}"
 zstyle ':completion:*' use-ip true
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -188,51 +166,22 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 autoload -Uz compinit && compinit
 autoload -Uz colors && colors
 
-# prompt
-setopt prompt_subst
-
-if ! declare -f __git_ps1 2>&1 >/dev/null ; then
-  if [[ -e /opt/homebrew/etc/bash_completion.d/git-prompt.sh ]]; then
-    . /opt/homebrew/etc/bash_completion.d/git-prompt.sh
-  elif [[ -e /usr/local/etc/bash_completion.d/git-prompt.sh ]]; then
-    . /usr/local/etc/bash_completion.d/git-prompt.sh
-  elif [[ -e /usr/share/git/completion/git-prompt.sh ]]; then
-    . /usr/share/git/completion/git-prompt.sh
-  elif [[ -e /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    . /usr/share/git-core/contrib/completion/git-prompt.sh
-  elif [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
-    . /usr/lib/git-core/git-sh-prompt
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+  brewPrefix="$(brew --prefix 2> /dev/null)"
+  if [[ -e "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    . "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
   fi
+
+  if [[ -e "${brewPrefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    . "${brewPrefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  fi
+  unset brewPrefix
 fi
 
-GIT_PS1_SHOWDIRTYSTATE=1
-GIT_PS1_SHOWUPSTREAM=auto
-GIT_PS1_SHOWSTASHSTATE=1
-GIT_PS1_SHOWUNTRACKEDFILES=1
-GIT_PS1_SHOWCOLORHINTS=1
-
-__build_prompt() {
-
-    local temp=''
-
-    if [[ -n "${VIRTUAL_ENV}" ]]; then
-      temp+="(${VIRTUAL_ENV##*/}) "
-    fi
-
-    if [[ -n "${SSH_TTY}" ]]; then
-      temp+="%{$fg_bold[green]%}%n@%m "
-    fi
-
-    temp+="%{$fg_bold[blue]%}%c "
-
-    echo "${temp}"
-}
-
-PROMPT="$(__build_prompt)%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}"
-if declare -f __git_ps1 2>&1 >/dev/null ; then
-  precmd() {
-    __git_ps1 "$(__build_prompt)" '%(?:%{$fg_bold[green]%}:%{$fg_bold[red]%}%s)$ %{$reset_color%}' '%s '
-  }
+if [[ -e "${HOME}/git/github.com/woefe/git-prompt.zsh/git-prompt.zsh" ]]; then
+  ZSH_GIT_PROMPT_SHOW_STASH=1
+  ZSH_GIT_PROMPT_SHOW_UPSTREAM="symbol"
+  . "${HOME}/git/github.com/woefe/git-prompt.zsh/git-prompt.zsh"
 fi
 
 if [[ -f ~/.zshrc.local.zsh ]]; then
