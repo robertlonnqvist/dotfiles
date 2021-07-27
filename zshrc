@@ -98,6 +98,10 @@ alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
+if command -v bat &> /dev/null; then
+  alias cat="bat -p"
+fi
+
 # platform specific stuff
 if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
