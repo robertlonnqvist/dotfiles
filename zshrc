@@ -105,7 +105,7 @@ fi
 # platform specific stuff
 if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
-  export LSCOLORS="ExGxGxDxCxEgEdAbAgAcAd"
+  export LSCOLORS="exfxcxdxbxegedabagacad"
   alias ls="ls -GFh"
 
   brewPrefix="$(brew --prefix 2> /dev/null)"
@@ -127,7 +127,7 @@ fi
 if [[ -f ~/.dir_colors ]]; then
   eval "$(dircolors -b ~/.dir_colors)"
 else
-  export LS_COLORS="di=1;34:ln=1;36:so=1;36:pi=1;33:ex=1;32:bd=1;34;46:cd=1;34;43:su=1;30;41:sg=1;30;46:tw=1;30;42:ow=1;30;43"
+  export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 fi
 
 # functions
