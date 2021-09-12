@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for fileName in inputrc bash_profile bashrc zshrc gitconfig vimrc
+for fileName in zshrc gitconfig
 do
   filePath="${HOME}/.${fileName}"
   if [[ -L "${filePath}" ]] || [[ ! -e "${filePath}" ]]
