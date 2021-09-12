@@ -198,7 +198,6 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
 fi
 
 if [[ ! -e ~/.zsh/powerlevel10k ]]; then
-  mkdir -p ~/.zsh
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.zsh/powerlevel10k
 fi
 . ~/.zsh/powerlevel10k/powerlevel10k.zsh-theme
