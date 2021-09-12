@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 export EDITOR=vim
 if [[ -z "${LANG}" ]]; then
   export LANG=en_US.UTF-8
@@ -69,6 +76,14 @@ bindkey '^?' backward-delete-char
 # fix shift-tab backward completion
 bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
 bindkey -M vicmd "${terminfo[kcbt]}" reverse-menu-complete
+
+# ctrl-left and alt-left
+bindkey '^[^[[D' backward-word
+bindkey '^[[1;5D' backward-word
+
+# ctrl-right and alt-right
+bindkey '^[[1;5C' forward-word
+bindkey '^[^[[C' forward-word
 
 # paths
 declare -U path fpath
@@ -182,11 +197,14 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   unset brewPrefix
 fi
 
-if [[ -e "${HOME}/git/github.com/woefe/git-prompt.zsh/git-prompt.zsh" ]]; then
-  ZSH_GIT_PROMPT_SHOW_STASH=1
-  ZSH_GIT_PROMPT_SHOW_UPSTREAM="symbol"
-  . "${HOME}/git/github.com/woefe/git-prompt.zsh/git-prompt.zsh"
+if [[ ! -e ~/.zsh/powerlevel10k ]]; then
+  mkdir -p ~/.zsh
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.zsh/powerlevel10k
 fi
+. ~/.zsh/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 if [[ -f ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
