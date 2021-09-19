@@ -21,7 +21,6 @@ WORDCHARS=${WORDCHARS//[\/]}
 setopt append_history
 setopt hist_ignore_space
 setopt hist_ignore_dups
-setopt share_history
 
 setopt auto_cd
 setopt extended_glob
