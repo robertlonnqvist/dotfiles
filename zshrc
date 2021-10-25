@@ -93,7 +93,7 @@ for p in /usr/local/bin \
          "${GOPATH:-${HOME}/go}/bin" \
          ~/.cargo/bin \
          ~/.node_modules/bin \
-         ~/.local/bin; do
+         "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
   if [[ -d "${p}" ]]; then
     path=("${p}" "${path[@]}")
   fi
@@ -121,19 +121,6 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
   export LSCOLORS="exfxcxdxbxegedabagacad"
   alias ls="ls -GFh"
-
-  brewPrefix="$(brew --prefix 2> /dev/null)"
-
-  if [[ -e "${brewPrefix}/share/zsh-completions" ]]; then
-    fpath+=("${brewPrefix}/share/zsh-completions")
-  fi
-
-  if [[ -e "${brewPrefix}/share/zsh/site-functions" ]]; then
-    fpath+=("${brewPrefix}/share/zsh/site-functions")
-  fi
-
-  unset brewPrefix
-
 else
   alias ls="ls --color=auto -Fh"
 fi
@@ -164,7 +151,7 @@ zstyle ':completion:*' use-ip true
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
 zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion::complete:*' use-cache on
-zstyle ':completion::complete:*' cache-path ~/.zcompcache
+zstyle ':completion::complete:*' cache-path "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompcache"
 
 # case insensitive completion
 unsetopt case_glob
@@ -181,25 +168,28 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-autoload -Uz compinit && compinit
+if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
+  git clone https://github.com/zsh-users/zsh-completions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions"
+fi
+fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions", ${fpath})
+
+autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
 autoload -Uz colors && colors
 
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  brewPrefix="$(brew --prefix 2> /dev/null)"
-  if [[ -e "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-    . "${brewPrefix}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  fi
-
-  if [[ -e "${brewPrefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-    . "${brewPrefix}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  fi
-  unset brewPrefix
+if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]]; then
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting"
 fi
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
-if [[ ! -e ~/.zsh/powerlevel10k ]]; then
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.zsh/powerlevel10k
+if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]]; then
+  git clone https://github.com/zsh-users/zsh-autosuggestions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions"
 fi
-. ~/.zsh/powerlevel10k/powerlevel10k.zsh-theme
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k" ]]; then
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k"
+fi
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k/powerlevel10k.zsh-theme"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
