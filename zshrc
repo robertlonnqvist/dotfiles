@@ -171,7 +171,7 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
   git clone https://github.com/zsh-users/zsh-completions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions"
 fi
-fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ${fpath})
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
 
 autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
 autoload -Uz colors && colors
@@ -179,12 +179,12 @@ autoload -Uz colors && colors
 if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting"
 fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
 
 if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]]; then
   git clone https://github.com/zsh-users/zsh-autosuggestions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions"
 fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.zsh"
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
 
 if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k" ]]; then
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k"
