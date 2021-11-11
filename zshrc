@@ -104,7 +104,7 @@ export PATH
 # aliases
 alias tree="tree -C"
 alias python-http-server="python3 -m http.server"
-alias myip="curl ifconfig.co"
+alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
