@@ -1,6 +1,6 @@
 [user]
     name = Robert Lönnqvist
-    email = robert.lonnqvist@gmail.com
+    email = robert@robertlonnqvist.com
 [core]
     autocrlf = input
     safecrlf = true
