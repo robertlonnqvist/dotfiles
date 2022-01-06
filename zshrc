@@ -5,6 +5,21 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   . "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# setup standard directories
+for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
+         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh}" \
+         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh/site-functions}" \
+         "${XDG_STATE_HOME:-${HOME}/.local/state}" \
+         "${XDG_CONFIG_HOME:-${HOME}/.config}" \
+         "${XDG_CONFIG_HOME:-${HOME}/.config/zsh}" \
+         "${XDG_CACHE_HOME:-${HOME}/.cache}" \
+         "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
+  if [[ ! -e "${p}" ]]; then
+    mkdir -p "${p}"
+  fi
+done
+unset p
+
 export EDITOR=vim
 if [[ -z "${LANG}" ]]; then
   export LANG=en_US.UTF-8
@@ -13,7 +28,7 @@ fi
 # history
 HISTSIZE=10000
 SAVEHIST=10000
-HISTFILE=~/.zsh_history
+HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 
 # Remove path separator from WORDCHARS.
 WORDCHARS=${WORDCHARS//[\/]}
@@ -104,6 +119,7 @@ export PATH
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
 fi
+fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/site-functions" "${fpath[@]}")
 
 # aliases
 alias tree="tree -C"
