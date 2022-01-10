@@ -41,45 +41,6 @@ setopt auto_cd
 setopt extended_glob
 
 bindkey -v
-export KEYTIMEOUT=1
-
-_update_cursor() {
-  case "${KEYMAP}" in
-    vicmd|visual|viopp) echo -ne '\e[1 q';;
-    *) echo -ne '\e[5 q';;
-  esac
-}
-zle -N zle-keymap-select _update_cursor
-zle -N zle-line-init _update_cursor
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd _update_cursor
-
-# Search backwards and forwards with a pattern
-bindkey -M vicmd '/' history-incremental-pattern-search-backward
-bindkey -M vicmd '?' history-incremental-pattern-search-forward
-
-# set up for insert mode too
-bindkey -M viins '^R' history-incremental-pattern-search-backward
-bindkey -M viins '^S' history-incremental-pattern-search-forward
-
-# some emacs standard shortcuts
-bindkey -M viins '^U' backward-kill-line
-bindkey -M viins '^W' backward-kill-word
-bindkey -M viins '^A' beginning-of-line
-bindkey -M viins '^K' kill-line
-bindkey -M viins '^E' end-of-line
-
-# allow ctrl-p, ctrl-n for navigate history (standard behaviour)
-bindkey '^P' up-history
-bindkey '^N' down-history
-
-# allow ctrl-v to edit the command line (standard behaviour)
-autoload -Uz edit-command-line
-zle -N edit-command-line
-bindkey -M vicmd '^V' edit-command-line
-
-# fix backspace bug when switching modes
-bindkey '^?' backward-delete-char
 
 # fix shift-tab backward completion
 bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
@@ -189,6 +150,11 @@ fi
 
 autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
 autoload -Uz colors && colors
+
+if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode" ]]; then
+  git clone https://github.com/jeffreytse/zsh-vi-mode.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode"
+fi
+. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
 
 if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting"
