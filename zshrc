@@ -43,28 +43,16 @@ setopt extended_glob
 bindkey -v
 export KEYTIMEOUT=1
 
-_beam_cursor() {
-   echo -ne '\e[5 q'
+_update_cursor() {
+  case "${KEYMAP}" in
+    vicmd|visual|viopp) echo -ne '\e[1 q';;
+    *) echo -ne '\e[5 q';;
+  esac
 }
-
-# Change cursor shape for different vi modes.
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ ${KEYMAP} = '' ]] || [[ $1 = 'beam' ]]; then
-    _beam_cursor
-  fi
-}
-zle -N zle-keymap-select
-zle-line-init() {
-    _beam_cursor
-}
-zle -N zle-line-init
-
-typeset -ag precmd_functions;
-if [[ -z ${precmd_functions[(r)_beam_cursor]} ]]; then
-  precmd_functions+=(_beam_cursor)
-fi
+zle -N zle-keymap-select _update_cursor
+zle -N zle-line-init _update_cursor
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _update_cursor
 
 # Search backwards and forwards with a pattern
 bindkey -M vicmd '/' history-incremental-pattern-search-backward
