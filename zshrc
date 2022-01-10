@@ -43,22 +43,28 @@ setopt extended_glob
 bindkey -v
 export KEYTIMEOUT=1
 
+_beam_cursor() {
+   echo -ne '\e[5 q'
+}
+
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
   if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
     echo -ne '\e[1 q'
   elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ ${KEYMAP} = '' ]] || [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
+    _beam_cursor
   fi
 }
 zle -N zle-keymap-select
 zle-line-init() {
-    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
-    echo -ne "\e[5 q"
+    _beam_cursor
 }
 zle -N zle-line-init
-echo -ne '\e[5 q' # Use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+
+typeset -ag precmd_functions;
+if [[ -z ${precmd_functions[(r)_beam_cursor]} ]]; then
+  precmd_functions+=(_beam_cursor)
+fi
 
 # Search backwards and forwards with a pattern
 bindkey -M vicmd '/' history-incremental-pattern-search-backward
@@ -100,7 +106,7 @@ bindkey '^[[1;5C' forward-word
 bindkey '^[^[[C' forward-word
 
 # paths
-declare -U path fpath
+typeset -U path fpath
 for p in /usr/local/bin \
          /usr/local/sbin \
          /opt/homebrew/bin \
