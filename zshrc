@@ -20,6 +20,19 @@ for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
 done
 unset p
 
+_load_plugin() {
+  local plugin_name="${1##*/}"
+  local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
+
+  if [[ ! -e "${plugin_path}" ]]; then
+    git clone --depth=1 "https://github.com/$1.git" "${plugin_path}"
+  fi
+
+  if [[ -e "${plugin_path}/${2}" ]]; then
+    . "${plugin_path}/${2}"
+  fi
+}
+
 export EDITOR=vim
 if [[ -z "${LANG}" ]]; then
   export LANG=en_US.UTF-8
@@ -41,6 +54,8 @@ setopt auto_cd
 setopt extended_glob
 
 bindkey -v
+
+_load_plugin jeffreytse/zsh-vi-mode zsh-vi-mode.plugin.zsh
 
 # fix shift-tab backward completion
 bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
@@ -143,33 +158,14 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
-  git clone https://github.com/zsh-users/zsh-completions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
+_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
 
 autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
 autoload -Uz colors && colors
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode" ]]; then
-  git clone https://github.com/jeffreytse/zsh-vi-mode.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-vi-mode/zsh-vi-mode.plugin.zsh"
-
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]]; then
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
-
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
-
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k" ]]; then
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k/powerlevel10k.zsh-theme"
+_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
+_load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
+_load_plugin romkatv/powerlevel10k powerlevel10k.zsh-theme
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 if [[ -f ~/.p10k.zsh ]]; then
