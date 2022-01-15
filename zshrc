@@ -1,17 +1,6 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  . "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # setup standard directories
 for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh}" \
-         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh/site-functions}" \
          "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CONFIG_HOME:-${HOME}/.config}" \
-         "${XDG_CONFIG_HOME:-${HOME}/.config/zsh}" \
          "${XDG_CACHE_HOME:-${HOME}/.cache}" \
          "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
   if [[ ! -e "${p}" ]]; then
@@ -89,7 +78,6 @@ export PATH
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
 fi
-fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/site-functions" "${fpath[@]}")
 
 # aliases
 alias tree="tree -C"
@@ -165,12 +153,12 @@ autoload -Uz colors && colors
 
 _load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
 _load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
-_load_plugin romkatv/powerlevel10k powerlevel10k.zsh-theme
+_load_plugin sindresorhus/pure
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-if [[ -f ~/.p10k.zsh ]]; then
-  . ~/.p10k.zsh
-fi
+fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
+
+autoload -U promptinit; promptinit
+prompt pure
 
 if [[ -f ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
