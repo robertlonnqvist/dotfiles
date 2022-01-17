@@ -35,7 +35,6 @@ HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 # Remove path separator from WORDCHARS.
 WORDCHARS=${WORDCHARS//[\/]}
 
-setopt append_history
 setopt hist_ignore_space
 setopt hist_ignore_dups
 
@@ -122,7 +121,6 @@ man() {
 }
 
 # completion
-setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' users root "${USER}"
 zstyle ':completion:*' use-ip true
