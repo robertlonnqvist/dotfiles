@@ -1,17 +1,6 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  . "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # setup standard directories
 for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh}" \
-         "${XDG_DATA_HOME:-${HOME}/.local/share/zsh/site-functions}" \
          "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CONFIG_HOME:-${HOME}/.config}" \
-         "${XDG_CONFIG_HOME:-${HOME}/.config/zsh}" \
          "${XDG_CACHE_HOME:-${HOME}/.cache}" \
          "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
   if [[ ! -e "${p}" ]]; then
@@ -19,6 +8,19 @@ for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
   fi
 done
 unset p
+
+_load_plugin() {
+  local plugin_name="${1##*/}"
+  local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
+
+  if [[ ! -e "${plugin_path}" ]]; then
+    git clone --depth=1 "https://github.com/$1.git" "${plugin_path}"
+  fi
+
+  if [[ -e "${plugin_path}/${2}" ]]; then
+    . "${plugin_path}/${2}"
+  fi
+}
 
 export EDITOR=vim
 if [[ -z "${LANG}" ]]; then
@@ -33,7 +35,6 @@ HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 # Remove path separator from WORDCHARS.
 WORDCHARS=${WORDCHARS//[\/]}
 
-setopt append_history
 setopt hist_ignore_space
 setopt hist_ignore_dups
 
@@ -41,45 +42,8 @@ setopt auto_cd
 setopt extended_glob
 
 bindkey -v
-export KEYTIMEOUT=1
 
-_update_cursor() {
-  case "${KEYMAP}" in
-    vicmd|visual|viopp) echo -ne '\e[1 q';;
-    *) echo -ne '\e[5 q';;
-  esac
-}
-zle -N zle-keymap-select _update_cursor
-zle -N zle-line-init _update_cursor
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd _update_cursor
-
-# Search backwards and forwards with a pattern
-bindkey -M vicmd '/' history-incremental-pattern-search-backward
-bindkey -M vicmd '?' history-incremental-pattern-search-forward
-
-# set up for insert mode too
-bindkey -M viins '^R' history-incremental-pattern-search-backward
-bindkey -M viins '^S' history-incremental-pattern-search-forward
-
-# some emacs standard shortcuts
-bindkey -M viins '^U' backward-kill-line
-bindkey -M viins '^W' backward-kill-word
-bindkey -M viins '^A' beginning-of-line
-bindkey -M viins '^K' kill-line
-bindkey -M viins '^E' end-of-line
-
-# allow ctrl-p, ctrl-n for navigate history (standard behaviour)
-bindkey '^P' up-history
-bindkey '^N' down-history
-
-# allow ctrl-v to edit the command line (standard behaviour)
-autoload -Uz edit-command-line
-zle -N edit-command-line
-bindkey -M vicmd '^V' edit-command-line
-
-# fix backspace bug when switching modes
-bindkey '^?' backward-delete-char
+_load_plugin jeffreytse/zsh-vi-mode zsh-vi-mode.plugin.zsh
 
 # fix shift-tab backward completion
 bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
@@ -113,7 +77,6 @@ export PATH
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
 fi
-fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/site-functions" "${fpath[@]}")
 
 # aliases
 alias tree="tree -C"
@@ -158,7 +121,6 @@ man() {
 }
 
 # completion
-setopt auto_menu
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' users root "${USER}"
 zstyle ':completion:*' use-ip true
@@ -182,33 +144,19 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-
 zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
-  git clone https://github.com/zsh-users/zsh-completions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
+_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
 
 autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
 autoload -Uz colors && colors
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]]; then
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh"
+_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
+_load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
+_load_plugin sindresorhus/pure
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions.git "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 
-if [[ ! -e "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k" ]]; then
-  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k"
-fi
-. "${XDG_DATA_HOME:-${HOME}/.local/share}/powerlevel10k/powerlevel10k.zsh-theme"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-if [[ -f ~/.p10k.zsh ]]; then
-  . ~/.p10k.zsh
-fi
+autoload -U promptinit; promptinit
+prompt pure
 
 if [[ -f ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
