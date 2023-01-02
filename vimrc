@@ -30,5 +30,5 @@ set clipboard=unnamed " use system clipboard by default
 set timeoutlen=1000 ttimeoutlen=0 " reduce annoying timeouts
 
 " enable dictionary auto-completion in Markdown files and Git Commit Messages
-autocmd FileType markdown setlocal complete+=kspell
-autocmd FileType gitcommit setlocal complete+=kspell
+autocmd FileType markdown setlocal spell complete+=kspell
+autocmd FileType gitcommit setlocal spell complete+=kspell
