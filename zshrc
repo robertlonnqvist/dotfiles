@@ -41,13 +41,7 @@ setopt hist_ignore_dups
 setopt auto_cd
 setopt extended_glob
 
-bindkey -v
-
-_load_plugin jeffreytse/zsh-vi-mode zsh-vi-mode.plugin.zsh
-
-# fix shift-tab backward completion
-bindkey -M viins "${terminfo[kcbt]}" reverse-menu-complete
-bindkey -M vicmd "${terminfo[kcbt]}" reverse-menu-complete
+bindkey -e
 
 # ctrl-left and alt-left
 bindkey '^[^[[D' backward-word
