@@ -17,7 +17,7 @@ _load_plugin() {
     git clone --depth=1 "https://github.com/$1.git" "${plugin_path}"
   fi
 
-  if [[ -e "${plugin_path}/${2}" ]]; then
+  if [[ -n "$2" && -e "${plugin_path}/${2}" ]]; then
     . "${plugin_path}/${2}"
   fi
 }
@@ -152,6 +152,6 @@ fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 autoload -U promptinit; promptinit
 prompt pure
 
-if [[ -f ~/.zshrc.local.zsh ]]; then
+if [[ -e ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
 fi
