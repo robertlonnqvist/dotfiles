@@ -66,7 +66,6 @@ for p in /usr/local/bin \
   fi
 done
 unset p
-export PATH
 
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
