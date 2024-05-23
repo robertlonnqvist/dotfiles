@@ -44,12 +44,15 @@ setopt extended_glob
 bindkey -e
 
 # ctrl-left and alt-left
-bindkey '^[^[[D' backward-word
-bindkey '^[[1;5D' backward-word
+bindkey "${terminfo[kLFT3]}" backward-word
+bindkey "${terminfo[kLFT5]}" backward-word
 
 # ctrl-right and alt-right
-bindkey '^[[1;5C' forward-word
-bindkey '^[^[[C' forward-word
+bindkey "${terminfo[kRIT5]}" forward-word
+bindkey "${terminfo[kRIT3]}" forward-word
+
+# make reverse completion work (Shift+Tab)
+bindkey "${terminfo[kcbt]}" reverse-menu-complete
 
 # paths
 typeset -U path fpath
