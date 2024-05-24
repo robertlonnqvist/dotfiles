@@ -41,6 +41,8 @@ setopt hist_ignore_dups
 setopt auto_cd
 setopt extended_glob
 
+# see https://gist.github.com/ketsuban/651e24c2d59506922d928c65c163d79c
+
 bindkey -e
 
 # ctrl-left and alt-left
