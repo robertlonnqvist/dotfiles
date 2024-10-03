@@ -46,15 +46,25 @@ setopt extended_glob
 bindkey -e
 
 # ctrl-left and alt-left
-bindkey "${terminfo[kLFT3]}" backward-word
-bindkey "${terminfo[kLFT5]}" backward-word
-
+if [[ -n "${terminfo[kLFT3]}" ]]; then
+  bindkey "${terminfo[kLFT3]}" backward-word
+fi
+if [[ -n "${terminfo[kLFT5]}" ]]; then
+  bindkey "${terminfo[kLFT5]}" backward-word
+fi
 # ctrl-right and alt-right
-bindkey "${terminfo[kRIT5]}" forward-word
-bindkey "${terminfo[kRIT3]}" forward-word
+if [[ -n "${terminfo[kRIT5]}" ]]; then
+  bindkey "${terminfo[kRIT5]}" forward-word
+fi
+if [[ -n "${terminfo[kRIT3]}" ]]; then
+  bindkey "${terminfo[kRIT3]}" forward-word
+fi
 
 # make reverse completion work (Shift+Tab)
 bindkey "${terminfo[kcbt]}" reverse-menu-complete
+
+# disable flow control (Ctrl+s, Ctrl+q)
+stty -ixon -ixoff
 
 # paths
 typeset -U path fpath
