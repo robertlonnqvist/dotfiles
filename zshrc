@@ -46,22 +46,17 @@ setopt extended_glob
 bindkey -e
 
 # ctrl-left and alt-left
-if [[ -n "${terminfo[kLFT3]}" ]]; then
-  bindkey "${terminfo[kLFT3]}" backward-word
-fi
-if [[ -n "${terminfo[kLFT5]}" ]]; then
-  bindkey "${terminfo[kLFT5]}" backward-word
-fi
+[[ -n "${terminfo[kLFT3]}" ]] && bindkey "${terminfo[kLFT3]}" backward-word
+[[ -n "${terminfo[kLFT5]}" ]] && bindkey "${terminfo[kLFT5]}" backward-word
 # ctrl-right and alt-right
-if [[ -n "${terminfo[kRIT5]}" ]]; then
-  bindkey "${terminfo[kRIT5]}" forward-word
-fi
-if [[ -n "${terminfo[kRIT3]}" ]]; then
-  bindkey "${terminfo[kRIT3]}" forward-word
-fi
+[[ -n "${terminfo[kRIT5]}" ]] && bindkey "${terminfo[kRIT5]}" forward-word
+[[ -n "${terminfo[kRIT3]}" ]] && bindkey "${terminfo[kRIT3]}" forward-word
+# pgUp and pgDown
+[[ -n "${terminfo[kpp]}" ]] && bindkey "${terminfo[kpp]}" beginning-of-buffer-or-history
+[[ -n "${terminfo[knp]}" ]] && bindkey "${terminfo[knp]}" end-of-buffer-or-history
 
 # make reverse completion work (Shift+Tab)
-bindkey "${terminfo[kcbt]}" reverse-menu-complete
+[[ -n "${terminfo[kcbt]}" ]] && bindkey "${terminfo[kcbt]}" reverse-menu-complete
 
 # disable flow control (Ctrl+s, Ctrl+q)
 stty -ixon -ixoff
