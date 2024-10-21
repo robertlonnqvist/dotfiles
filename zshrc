@@ -153,6 +153,7 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
+bindkey '^y' accept-line
 
 # edit line in vim buffer ctrl-v
 autoload edit-command-line; zle -N edit-command-line
@@ -169,6 +170,8 @@ bindkey -M menuselect 'left' vi-backward-char
 bindkey -M menuselect 'down' vi-down-line-or-history
 bindkey -M menuselect 'up' vi-up-line-or-history
 bindkey -M menuselect 'right' vi-forward-char
+# exit menuselect on escape
+bindkey -M menuselect '^[' undo
 
 # change cursor shape for different vi modes
 function zle-keymap-select {
