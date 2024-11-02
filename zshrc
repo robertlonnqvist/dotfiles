@@ -153,13 +153,16 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
+
+# vim like completion
 bindkey '^y' accept-line
+bindkey '^n' expand-or-complete
+bindkey '^p' reverse-menu-complete
 
 # edit line in vim buffer ctrl-v
-autoload edit-command-line; zle -N edit-command-line
+autoload edit-command-line && zle -N edit-command-line
 bindkey '^v' edit-command-line
-# Enter vim buffer from normal mode
-autoload -U edit-command-line && zle -N edit-command-line && bindkey -M vicmd "^v" edit-command-line
+bindkey -M vicmd "^v" edit-command-line
 
 # use vim keys in tab complete menu
 bindkey -M menuselect 'h' vi-backward-char
