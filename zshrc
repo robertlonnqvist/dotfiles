@@ -153,11 +153,7 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
-
-# vim like completion
 bindkey '^y' accept-line
-bindkey '^n' expand-or-complete
-bindkey '^p' reverse-menu-complete
 
 # edit line in vim buffer ctrl-v
 autoload edit-command-line && zle -N edit-command-line
