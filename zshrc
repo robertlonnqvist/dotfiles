@@ -1,3 +1,7 @@
+# essential env first (available to non-interactive shells)
+export EDITOR=${EDITOR:-vim}
+[[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
+
 # setup standard directories
 for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
          "${XDG_STATE_HOME:-${HOME}/.local/state}" \
@@ -14,18 +18,14 @@ _load_plugin() {
   local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
 
   if [[ ! -e "${plugin_path}" ]]; then
-    git clone --depth=1 "https://github.com/$1.git" "${plugin_path}"
+    command -v git >/dev/null || return
+    git clone --depth=1 "https://github.com/$1.git" "${plugin_path}" >/dev/null 2>&1 || return
   fi
 
   if [[ -n "$2" && -e "${plugin_path}/${2}" ]]; then
     . "${plugin_path}/${2}"
   fi
 }
-
-export EDITOR=vim
-if [[ -z "${LANG}" ]]; then
-  export LANG=en_US.UTF-8
-fi
 
 # history
 HISTSIZE=10000
@@ -42,7 +42,9 @@ setopt auto_cd
 setopt extended_glob
 
 # disable flow control (Ctrl+s, Ctrl+q)
-stty -ixon -ixoff
+if [[ -t 0 ]]; then
+  stty -ixon -ixoff
+fi
 
 # paths
 typeset -U path fpath
@@ -63,6 +65,9 @@ unset p
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
 fi
+
+# Stop here for non-interactive shells
+[[ -o interactive ]] || return
 
 # aliases
 alias tree="tree -C"
@@ -88,7 +93,7 @@ else
   alias ls="ls --color=auto -Fh"
 fi
 
-if [[ -f ~/.dir_colors ]]; then
+if [[ -f ~/.dir_colors ]] && command -v dircolors >/dev/null 2>&1; then
   eval "$(dircolors -b ~/.dir_colors)"
 else
   export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
@@ -108,7 +113,20 @@ man() {
 
 # completion
 zmodload zsh/complist
-autoload -Uz compinit && compinit -d "${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
+typeset -g compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
+autoload -Uz compinit
+if [[ ! -s $compdump ]]; then
+  compinit -C -d "$compdump"   # first run: build with security checks
+else
+  compinit -i -d "$compdump"   # subsequent runs: fast load
+fi
+
+comp-rebuild() {
+  local compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
+  rm -f -- "$compdump"
+  autoload -Uz compinit && compinit -C -d "$compdump"
+}
+
 # Include hidden files.
 _comp_options+=(globdots)
 
@@ -122,7 +140,12 @@ zstyle ':completion::complete:*' cache-path "${XDG_CACHE_HOME:-${HOME}/.cache}/z
 
 # case insensitive completion
 unsetopt case_glob
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' matcher-list \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:|[._-]=* r:|=*' \
+  'l:|=* r:|=*' \
+  'm:{[:lower:]}={[:upper:]}' \
+  'm:{[:upper:]}={[:lower:]}'
 
 # complete . and .. special directories
 zstyle ':completion:*' special-dirs true
@@ -154,6 +177,7 @@ bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
 bindkey '^y' accept-line
+bindkey '^l' clear-screen
 
 # edit line in vim buffer ctrl-v
 autoload edit-command-line && zle -N edit-command-line
@@ -204,14 +228,17 @@ for m in visual viopp; do
   done
 done
 
-zle-line-init() {
-    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
-    echo -ne "\e[5 q"
+function _cursor() { printf '\e[%s q' "$1"; } # 1=block, 5=beam
+zle-keymap-select() {
+  case $KEYMAP in
+    vicmd) _cursor 1 ;;
+    viins|main|'') _cursor 5 ;;
+  esac
 }
+zle -N zle-keymap-select
+zle-line-init() { zle -K viins; _cursor 5; }
 zle -N zle-line-init
-
-echo -ne '\e[5 q' # use beam shape cursor on startup.
-precmd() { echo -ne '\e[5 q' ;} # use beam shape cursor for each new prompt.
+precmd() { _cursor 5; }
 
 # see https://gist.github.com/ketsuban/651e24c2d59506922d928c65c163d79c
 
@@ -232,8 +259,12 @@ _load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
 
 autoload -Uz colors && colors
 
-_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
+# plugins (order matters)
 _load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
 _load_plugin sindresorhus/pure
 
 fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
