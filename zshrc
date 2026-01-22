@@ -1,5 +1,5 @@
 # essential env first (available to non-interactive shells)
-export EDITOR=${EDITOR:-vim}
+export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
 # setup standard directories
