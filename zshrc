@@ -48,19 +48,17 @@ fi
 
 # paths
 typeset -U path fpath
-for p in /usr/local/bin \
-         /usr/local/sbin \
-         /opt/homebrew/bin \
-         /opt/homebrew/sbin \
-         "${GOPATH:-${HOME}/go}/bin" \
-         ~/.cargo/bin \
-         ~/.node_modules/bin \
-         "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
-  if [[ -d "${p}" ]]; then
-    path=("${p}" "${path[@]}")
-  fi
-done
-unset p
+path=(
+  /usr/local/{bin,sbin}
+  /opt/homebrew/{bin,sbin}
+  "${GOPATH:-${HOME}/go}/bin"
+  ~/.cargo/bin
+  "${XDG_BIN_HOME:-${HOME}/.local/bin}"
+  $path
+)
+# Filter out non-existent directories in one go
+path=($^path(N-/))
+
 
 if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
   fpath+=/opt/homebrew/share/zsh/site-functions
@@ -113,18 +111,27 @@ man() {
 
 # completion
 zmodload zsh/complist
-typeset -g compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
+typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 autoload -Uz compinit
-if [[ ! -s $compdump ]]; then
-  compinit -C -d "$compdump"   # first run: build with security checks
+
+# Only check security/rebuild cache once a day, otherwise skip checks (-C)
+if [[ -n "$compdump(#qN.m-1)" ]]; then
+  compinit -C -d "$compdump"
 else
-  compinit -i -d "$compdump"   # subsequent runs: fast load
+  compinit -i -d "$compdump"
 fi
+# Compile zcompdump to bytecode in the background for even faster loading next time
+{ [[ ! "$compdump.zwc" -nt "$compdump" ]] && zcompile "$compdump" } &!
 
 comp-rebuild() {
   local compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
-  rm -f -- "$compdump"
-  autoload -Uz compinit && compinit -C -d "$compdump"
+  # Delete both the text dump and the compiled bytecode
+  rm -f -- "$compdump" "$compdump.zwc"
+
+  # Re-initialize with a full security scan (-i)
+  autoload -Uz compinit && compinit -i -d "$compdump"
+
+  echo "Completion cache rebuilt."
 }
 
 # Include hidden files.
@@ -196,49 +203,24 @@ bindkey -M menuselect 'right' vi-forward-char
 # exit menuselect on escape
 bindkey -M menuselect '^[' undo
 
-# change cursor shape for different vi modes
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
-}
-zle -N zle-keymap-select
-
-# ci", ci', ci`, di", etc
-autoload -U select-quoted
-zle -N select-quoted
-for m in visual viopp; do
-  for c in {a,i}{\',\",\`}; do
-    bindkey -M $m $c select-quoted
-  done
-done
-
-# ci{, ci(, ci<, di{, etc
-autoload -U select-bracketed
-zle -N select-bracketed
-for m in visual viopp; do
-  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
-    bindkey -M $m $c select-bracketed
-  done
-done
-
-function _cursor() { printf '\e[%s q' "$1"; } # 1=block, 5=beam
-zle-keymap-select() {
-  case $KEYMAP in
-    vicmd) _cursor 1 ;;
-    viins|main|'') _cursor 5 ;;
+# Change cursor shape for different vi modes
+function _set_cursor_shape() {
+  case ${KEYMAP} in
+    vicmd)      print -ne "\e[1 q" ;; # Block for Command Mode
+    viins|main) print -ne "\e[5 q" ;; # Beam for Insert Mode
+    isearch)    print -ne "\e[5 q" ;; # Beam for Search Mode
   esac
 }
+
+# Define the widgets
+zle-keymap-select() { _set_cursor_shape }
+zle-line-init() { zle -K viins; _set_cursor_shape }
+
 zle -N zle-keymap-select
-zle-line-init() { zle -K viins; _cursor 5; }
 zle -N zle-line-init
-precmd() { _cursor 5; }
+
+# Ensure cursor resets to beam before every new prompt
+precmd_functions+=(_set_cursor_shape)
 
 # see https://gist.github.com/ketsuban/651e24c2d59506922d928c65c163d79c
 
