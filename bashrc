@@ -28,13 +28,18 @@ declare -a potential_paths=(
 )
 
 for p in "${potential_paths[@]}"; do
-  if [[ -d "$p" && ":$PATH:" != *":$p:"* ]]; then
-    export PATH="${p}:${PATH}"
+  if [[ -d "$p" ]]; then
+    PATH=":${PATH}:"
+    PATH="${PATH//:$p:/:}"
+    PATH="${p}${PATH%:}"
+    PATH="${PATH#:}"
   fi
 done
 
 unset p
 unset potential_paths
+
+export PATH
 
 # disable flow control (Ctrl+s, Ctrl+q)
 if [[ -t 0 ]]; then
