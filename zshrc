@@ -206,9 +206,9 @@ bindkey -M menuselect '^[' undo
 # Change cursor shape for different vi modes
 function _set_cursor_shape() {
   case ${KEYMAP} in
-    vicmd)      print -ne "\e[1 q" ;; # Block for Command Mode
-    viins|main) print -ne "\e[5 q" ;; # Beam for Insert Mode
-    isearch)    print -ne "\e[5 q" ;; # Beam for Search Mode
+    vicmd)      print -n "\e[1 q" ;; # Block for Command Mode
+    viins|main) print -n "\e[5 q" ;; # Beam for Insert Mode
+    isearch)    print -n "\e[5 q" ;; # Beam for Search Mode
   esac
 }
 
