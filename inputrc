@@ -1,0 +1,75 @@
+# =======================================================
+# Custom Keybindings for Bash Readline (Vi Mode compatible)
+# =======================================================
+
+# Enable vi mode
+set editing-mode vi
+# Show the mode in the prompt (optional, requires specific PS1 config below)
+set show-mode-in-prompt on
+# Set the mode string and cursor shape to indicate the vi mode
+set vi-ins-mode-string "\1\e[5 q\2"
+set vi-cmd-mode-string "\1\e[1 q\2"
+
+# ----------------------------------
+# Standard Emacs-style Shortcuts
+# (These work in both Emacs and Vi Insert mode by default)
+# ----------------------------------
+
+# Ctrl+r: history-incremental-search-backward
+"\C-r": reverse-search-history
+
+# Ctrl+s: history-incremental-search-forward (often blocked by terminal flow control, use stty -ixon to enable)
+# "\C-s": forward-search-history
+
+# Ctrl+p: up-line-or-history
+"\C-p": previous-history
+
+# Ctrl+n: down-line-or-history
+"\C-n": next-history
+
+# Ctrl+w: backward-kill-word
+"\C-w": backward-kill-word
+
+# Ctrl+a: beginning-of-line
+"\C-a": beginning-of-line
+
+# Ctrl+e: end-of-line
+"\C-e": end-of-line
+
+# Ctrl+k: kill-line (kill text from cursor to end of line)
+"\C-k": kill-line
+
+# Ctrl+u: backward-kill-line (kill text from cursor to beginning of line)
+"\C-u": backward-kill-line
+
+# Ctrl+y: accept-line (paste/yank previous kill)
+# Note: Ctrl+y in bash is typically for yanking previously killed text.
+# The Zsh equivalent 'accept-line' is simply the Enter key.
+
+# Ctrl+l: clear-screen
+"\C-l": clear-screen
+
+# Backspace fix (if needed)
+"\C-?": backward-delete-char
+"\177": backward-delete-char
+
+# ----------------------------------
+# Word Movements (Ctrl/Alt + Arrow Keys)
+# ----------------------------------
+# These escape sequences can vary depending on your terminal emulator.
+# If they don't work, you may need to use `cat -v` in your terminal to find
+# the exact sequences sent when you press these key combinations.
+"\e[1;5D": backward-word
+"\e[5D": backward-word
+"\e\e[D": backward-word
+"\e[1;5C": forward-word
+"\e[5C": forward-word
+"\e\e[C": forward-word
+
+# ----------------------------------
+# Page Up/Down (History Navigation)
+# ----------------------------------
+# Maps PgUp and PgDown to move through history entries.
+"\e[5~": history-beginning-search
+"\e[6~": history-end-search
+
