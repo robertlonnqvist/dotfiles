@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ "$#" -eq 0 ]; then
+  printf 'Usage: git all <command>\n' >&2
+  exit 1
+fi
+
+status=0
+count=0
+failures=0
+
+# Intentionally scans immediate, non-hidden child directories only; keep this
+# simple POSIX loop rather than adding recursive traversal or NUL-safe find.
+for dir in */; do
+  [ -d "$dir/.git" ] || [ -f "$dir/.git" ] || continue
+  dir=${dir%/}
+
+  count=$((count + 1))
+  printf '>>> Processing %s...\n' "$dir"
+  if git -C "$dir" "$@"; then
+    :
+  else
+    rc=$?
+    printf 'Failed in %s (exit %d)\n' "$dir" "$rc" >&2
+    status=1
+    failures=$((failures + 1))
+  fi
+  printf '\n'
+done
+
+printf 'Processed %d repositories; %d failed.\n' "$count" "$failures"
+exit "$status"

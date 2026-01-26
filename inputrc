@@ -1,75 +1,68 @@
-# =======================================================
-# Custom Keybindings for Bash Readline (Vi Mode compatible)
-# =======================================================
+# ==============================================================================
+# BASH READLINE CONFIGURATION (Vi Mode Compatible)
+# ==============================================================================
 
-# Enable vi mode
+# Core Autocomplete Engine
+set completion-ignore-case on
+set show-all-if-ambiguous on
+
+# Mode Initialization
 set editing-mode vi
-# Show the mode in the prompt (optional, requires specific PS1 config below)
 set show-mode-in-prompt on
-# Set the mode string and cursor shape to indicate the vi mode
 set vi-ins-mode-string "\1\e[5 q\2"
 set vi-cmd-mode-string "\1\e[1 q\2"
 
-# ----------------------------------
-# Standard Emacs-style Shortcuts
-# (These work in both Emacs and Vi Insert mode by default)
-# ----------------------------------
+# ==============================================================================
+# VI MODE KEYMAP OVERRIDES
+# ==============================================================================
+$if mode=vi
 
-# Ctrl+r: history-incremental-search-backward
-"\C-r": reverse-search-history
+  # ----------------------------------
+  # 1. Vi Insert Mode Shortcuts
+  # ----------------------------------
+  set keymap vi-insert
 
-# Ctrl+s: history-incremental-search-forward (often blocked by terminal flow control, use stty -ixon to enable)
-# "\C-s": forward-search-history
+  # History & Line Navigation
+  "\C-r": reverse-search-history
+  "\C-p": previous-history
+  "\C-n": next-history
+  "\C-a": beginning-of-line
+  "\C-e": end-of-line
 
-# Ctrl+p: up-line-or-history
-"\C-p": previous-history
+  # Text Editing Actions
+  "\C-w": backward-kill-word
+  "\C-k": kill-line
+  "\C-u": backward-kill-line
+  "\C-l": clear-screen
+  "\C-?": backward-delete-char
+  "\177": backward-delete-char
 
-# Ctrl+n: down-line-or-history
-"\C-n": next-history
+  # Sync feature with Zsh: Edit command line buffer in full Vim editor
+  "\C-v": edit-and-execute-command
 
-# Ctrl+w: backward-kill-word
-"\C-w": backward-kill-word
+  # ----------------------------------
+  # 2. Vi Command Mode Shortcuts
+  # ----------------------------------
+  set keymap vi-command
 
-# Ctrl+a: beginning-of-line
-"\C-a": beginning-of-line
+  # Sync feature with Zsh: Edit command line buffer in full Vim editor
+  "\C-v": edit-and-execute-command
 
-# Ctrl+e: end-of-line
-"\C-e": end-of-line
+  # ----------------------------------
+  # 3. Global Context Maps (Shared Sequences)
+  # ----------------------------------
+  # Readline automatically applies these fallback sequences across modes
+  
+  # Word Movements (Ctrl/Alt + Arrow Keys)
+  "\e[1;5D": backward-word
+  "\e[5D":   backward-word
+  "\e\e[D":  backward-word
+  "\e[1;5C": forward-word
+  "\e[5C":   forward-word
+  "\e\e[C":  forward-word
 
-# Ctrl+k: kill-line (kill text from cursor to end of line)
-"\C-k": kill-line
+  # Page Up/Down (History Search Navigation)
+  "\e[5~": history-search-backward
+  "\e[6~": history-search-forward
 
-# Ctrl+u: backward-kill-line (kill text from cursor to beginning of line)
-"\C-u": backward-kill-line
-
-# Ctrl+y: accept-line (paste/yank previous kill)
-# Note: Ctrl+y in bash is typically for yanking previously killed text.
-# The Zsh equivalent 'accept-line' is simply the Enter key.
-
-# Ctrl+l: clear-screen
-"\C-l": clear-screen
-
-# Backspace fix (if needed)
-"\C-?": backward-delete-char
-"\177": backward-delete-char
-
-# ----------------------------------
-# Word Movements (Ctrl/Alt + Arrow Keys)
-# ----------------------------------
-# These escape sequences can vary depending on your terminal emulator.
-# If they don't work, you may need to use `cat -v` in your terminal to find
-# the exact sequences sent when you press these key combinations.
-"\e[1;5D": backward-word
-"\e[5D": backward-word
-"\e\e[D": backward-word
-"\e[1;5C": forward-word
-"\e[5C": forward-word
-"\e\e[C": forward-word
-
-# ----------------------------------
-# Page Up/Down (History Navigation)
-# ----------------------------------
-# Maps PgUp and PgDown to move through history entries.
-"\e[5~": history-beginning-search
-"\e[6~": history-end-search
-
+$endif

@@ -1,8 +1,14 @@
 [user]
-    name = Robert Lönnqvist
-    email = robert@robertlonnqvist.com
+  name = Robert Lönnqvist
+  email = robert@robertlonnqvist.com
 [core]
-    autocrlf = input
-    safecrlf = true
+  autocrlf = input
+  safecrlf = warn
 [pull]
-    rebase = true
+  rebase = true
+[init]
+  defaultBranch = main
+[push]
+  autoSetupRemote = true
+[merge]
+  conflictstyle = zdiff3
