@@ -48,21 +48,32 @@ fi
 
 # paths
 typeset -U path fpath
+
+# Detect and initialize Homebrew/Linuxbrew
+() {
+  local brew_exe
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew_exe="/opt/homebrew/bin/brew"
+     [[ ! -x "$brew_exe" ]] && brew_exe="/usr/local/bin/brew"
+  else
+    brew_exe="/home/linuxbrew/.linuxbrew/bin/brew"
+    [[ ! -x "$brew_exe" ]] && brew_exe="${HOME}/.linuxbrew/bin/brew"
+  fi
+
+  if [[ -x "$brew_exe" ]]; then
+    eval "$($brew_exe shellenv)"
+    fpath=("${HOMEBREW_PREFIX}/share/zsh/site-functions" $fpath)
+  fi
+}
+
 path=(
-  /usr/local/{bin,sbin}
-  /opt/homebrew/{bin,sbin}
+  "${XDG_BIN_HOME:-${HOME}/.local/bin}"
   "${GOPATH:-${HOME}/go}/bin"
   ~/.cargo/bin
-  "${XDG_BIN_HOME:-${HOME}/.local/bin}"
   $path
 )
 # Filter out non-existent directories in one go
 path=($^path(N-/))
-
-
-if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
-  fpath+=/opt/homebrew/share/zsh/site-functions
-fi
 
 # Stop here for non-interactive shells
 [[ -o interactive ]] || return

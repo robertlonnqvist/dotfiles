@@ -16,28 +16,35 @@ mkdir -p "${XDG_DATA_HOME:-${HOME}/.local/share}" \
          "${XDG_CACHE_HOME:-${HOME}/.cache}" \
          "${XDG_BIN_HOME:-${HOME}/.local/bin}"
 
-declare -a potential_paths=(
-  /usr/local/bin
-  /usr/local/sbin
-  /opt/homebrew/bin
-  /opt/homebrew/sbin
-  "${GOPATH:-${HOME}/go}/bin"
-  "${HOME}/.cargo/bin"
-  "${HOME}/.node_modules/bin"
-  "${XDG_BIN_HOME:-${HOME}/.local/bin}"
-)
+# Detect and initialize Homebrew/Linuxbrew
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    BREW_EXE="/opt/homebrew/bin/brew"
+    [[ ! -x "$BREW_EXE" ]] && BREW_EXE="/usr/local/bin/brew"
+else
+    BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
+    [[ ! -x "$BREW_EXE" ]] && BREW_EXE="${HOME}/.linuxbrew/bin/brew"
+fi
 
-for p in "${potential_paths[@]}"; do
-  if [[ -d "$p" ]]; then
+if [[ -x "$BREW_EXE" ]]; then
+    eval "$("$BREW_EXE" shellenv)"
+fi
+unset BREW_EXE
+
+path_prepend() {
+    [[ -d "$1" ]] || return
+    # Remove all instances of the path first
     PATH=":${PATH}:"
-    PATH="${PATH//:$p:/:}"
-    PATH="${p}${PATH%:}"
+    PATH="${PATH//:$1:/:}"
+    # Clean up edge colons and prepend
+    PATH="${1}${PATH%:}"
     PATH="${PATH#:}"
-  fi
-done
+    export PATH
+}
 
-unset p
-unset potential_paths
+path_prepend "${HOME}/.node_modules/bin"
+path_prepend "${GOPATH:-${HOME}/go}/bin"
+path_prepend "${HOME}/.cargo/bin"
+path_prepend "${XDG_BIN_HOME:-${HOME}/.local/bin}"
 
 export PATH
 
@@ -113,8 +120,17 @@ TOOLBOX_NAME=$(get_toolbox_name)
 if ! declare -F _completion_loader >/dev/null; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
-  elif [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
-    . /opt/homebrew/etc/profile.d/bash_completion.sh
+  fi
+
+  if [[ -n "${HOMEBREW_PREFIX}" ]]; then
+    if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+      . "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+    elif [[ -d "${HOMEBREW_PREFIX}/etc/bash_completion.d" ]]; then
+      for completion in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
+        [[ -r "$completion" ]] && . "$completion"
+      done
+      unset completion
+    fi
   fi
 fi
 
