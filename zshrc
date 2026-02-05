@@ -251,6 +251,8 @@ _load_plugin sindresorhus/pure
 
 fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 
+PURE_GIT_PULL=0
+
 autoload -U promptinit; promptinit
 prompt pure
 
