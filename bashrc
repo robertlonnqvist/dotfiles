@@ -11,11 +11,6 @@ set -o vi
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
-mkdir -p "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CACHE_HOME:-${HOME}/.cache}" \
-         "${XDG_BIN_HOME:-${HOME}/.local/bin}"
-
 # Detect and initialize Homebrew/Linuxbrew
 if [[ "$OSTYPE" == "darwin"* ]]; then
     BREW_EXE="/opt/homebrew/bin/brew"
@@ -65,11 +60,6 @@ alias tree="tree -C"
 alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias zgrep="grep --color=auto"
-alias zegrep="zegrep --color=auto"
-alias zfgrep="zfgrep --color=auto"
 
 if type -p bat > /dev/null; then
   alias cat="bat -p"
@@ -114,7 +104,9 @@ get_toolbox_name() {
   echo ""
 }
 
-TOOLBOX_NAME=$(get_toolbox_name)
+if [ -f /run/.containerenv ]; then
+  TOOLBOX_NAME=$(get_toolbox_name)
+fi
 
 # Completion
 if ! declare -F _completion_loader >/dev/null; then
@@ -135,8 +127,15 @@ if ! declare -F _completion_loader >/dev/null; then
 fi
 
 # Git prompt
-if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
-  . /usr/share/git-core/contrib/completion/git-prompt.sh
+HAS_GIT_PROMPT=false
+if ! declare -F __git_ps1 >/dev/null; then
+  if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+    . /usr/share/git-core/contrib/completion/git-prompt.sh
+    HAS_GIT_PROMPT=true
+  elif [ -f /usr/share/git/completion/git-prompt.sh ]; then
+    . /usr/share/git/completion/git-prompt.sh
+    HAS_GIT_PROMPT=true
+  fi
 fi
 
 # Configure git prompt variables
@@ -169,7 +168,11 @@ PROMPT_COMMAND() {
   local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
   local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
   
-  __git_ps1 "$pre" "$post" " %s"
+  if $HAS_GIT_PROMPT; then
+    __git_ps1 "$pre" "$post" " %s"
+  else
+    PS1="$pre $post"
+  fi
 }
 
 export PROMPT_COMMAND=PROMPT_COMMAND

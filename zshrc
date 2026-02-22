@@ -2,17 +2,6 @@
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
-# setup standard directories
-for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CACHE_HOME:-${HOME}/.cache}" \
-         "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
-  if [[ ! -e "${p}" ]]; then
-    mkdir -p "${p}"
-  fi
-done
-unset p
-
 _load_plugin() {
   local plugin_name="${1##*/}"
   local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
