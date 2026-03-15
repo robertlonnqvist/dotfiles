@@ -61,8 +61,15 @@ alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
 
-if type -p bat > /dev/null; then
-  alias cat="bat -p"
+if command -v bat &> /dev/null; then
+  alias cat="bat -pp"
+  alias less="bat --paging=always"
+  alias more="bat --paging=always"
+
+  # Standard pager for system compatibility
+  export PAGER="less -RF"
+  # Tells bat specifically how to behave when it pages
+  export BAT_PAGER="less -RF"
 fi
 
 # platform specific stuff

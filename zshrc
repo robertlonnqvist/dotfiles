@@ -79,7 +79,14 @@ alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
 if command -v bat &> /dev/null; then
-  alias cat="bat -p"
+  alias cat="bat -pp"
+  alias less="bat --paging=always"
+  alias more="bat --paging=always"
+
+  # Standard pager for system compatibility
+  export PAGER="less -RF"
+  # Tells bat specifically how to behave when it pages
+  export BAT_PAGER="less -RF"
 fi
 
 # platform specific stuff
