@@ -55,6 +55,10 @@ typeset -U path fpath
   fi
 }
 
+if [ -f "/run/current-system/sw/share/zsh/site-functions" ]; then
+  fpath=("/run/current-system/sw/share/zsh/site-functions" $fpath)
+fi
+
 path=(
   "${XDG_BIN_HOME:-${HOME}/.local/bin}"
   "${GOPATH:-${HOME}/go}/bin"
