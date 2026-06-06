@@ -121,8 +121,7 @@ if (($+commands[fd])); then
 fi
 
 if (($+commands[zoxide])); then
-  eval "$(zoxide init zsh)"
-  alias cd="z"
+  eval "$(zoxide init --cmd=cd zsh)"
 fi
 
 if [[ -f ~/.dir_colors ]] && (($+commands[dircolors])); then
