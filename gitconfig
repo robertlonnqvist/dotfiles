@@ -1,8 +1,8 @@
 [user]
-    name = Robert Lönnqvist
-    email = robert@robertlonnqvist.com
+  name = Robert Lönnqvist
+  email = robert@robertlonnqvist.com
 [core]
-    autocrlf = input
-    safecrlf = true
+  autocrlf = input
+  safecrlf = true
 [pull]
-    rebase = true
+  rebase = true

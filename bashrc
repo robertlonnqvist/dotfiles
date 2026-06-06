@@ -2,8 +2,8 @@
 
 # If not running interactively, don't do anything further
 case $- in
-    *i*) ;;
-      *) return;;
+*i*) ;;
+*) return ;;
 esac
 
 set -o vi
@@ -13,27 +13,27 @@ export EDITOR=vim
 
 # Detect and initialize Homebrew/Linuxbrew
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    BREW_EXE="/opt/homebrew/bin/brew"
-    [[ ! -x "$BREW_EXE" ]] && BREW_EXE="/usr/local/bin/brew"
+  BREW_EXE="/opt/homebrew/bin/brew"
+  [[ ! -x "$BREW_EXE" ]] && BREW_EXE="/usr/local/bin/brew"
 else
-    BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
-    [[ ! -x "$BREW_EXE" ]] && BREW_EXE="${HOME}/.linuxbrew/bin/brew"
+  BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
+  [[ ! -x "$BREW_EXE" ]] && BREW_EXE="${HOME}/.linuxbrew/bin/brew"
 fi
 
 if [[ -x "$BREW_EXE" ]]; then
-    eval "$("$BREW_EXE" shellenv)"
+  eval "$("$BREW_EXE" shellenv)"
 fi
 unset BREW_EXE
 
 path_prepend() {
-    [[ -d "$1" ]] || return
-    # Remove all instances of the path first
-    PATH=":${PATH}:"
-    PATH="${PATH//:$1:/:}"
-    # Clean up edge colons and prepend
-    PATH="${1}${PATH%:}"
-    PATH="${PATH#:}"
-    export PATH
+  [[ -d "$1" ]] || return
+  # Remove all instances of the path first
+  PATH=":${PATH}:"
+  PATH="${PATH//:$1:/:}"
+  # Clean up edge colons and prepend
+  PATH="${1}${PATH%:}"
+  PATH="${PATH#:}"
+  export PATH
 }
 
 path_prepend "${HOME}/.node_modules/bin"
@@ -61,7 +61,7 @@ alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
 
-if command -v bat &> /dev/null; then
+if command -v bat &>/dev/null; then
   alias cat="bat -pp"
   alias less="bat --paging=always"
   alias more="bat --paging=always"
@@ -90,13 +90,13 @@ fi
 # functions
 man() {
   env LESS_TERMCAP_mb=$'\e[01;33m' \
-      LESS_TERMCAP_md=$'\e[01;34m' \
-      LESS_TERMCAP_me=$'\e[0m' \
-      LESS_TERMCAP_se=$'\e[0m' \
-      LESS_TERMCAP_so=$'\e[01;43;30m' \
-      LESS_TERMCAP_ue=$'\e[0m' \
-      LESS_TERMCAP_us=$'\e[01;36m' \
-      man "$@"
+    LESS_TERMCAP_md=$'\e[01;34m' \
+    LESS_TERMCAP_me=$'\e[0m' \
+    LESS_TERMCAP_se=$'\e[0m' \
+    LESS_TERMCAP_so=$'\e[01;43;30m' \
+    LESS_TERMCAP_ue=$'\e[0m' \
+    LESS_TERMCAP_us=$'\e[01;36m' \
+    man "$@"
 }
 
 get_toolbox_name() {
@@ -106,7 +106,7 @@ get_toolbox_name() {
         echo "(${BASH_REMATCH[1]})"
         return
       fi
-    done < /run/.containerenv
+    done </run/.containerenv
   fi
   echo ""
 }
@@ -147,10 +147,10 @@ fi
 
 # Configure git prompt variables
 export GIT_PS1_SHOWCOLORHINTS=true
-export GIT_PS1_SHOWDIRTYSTATE=y      # Show if working tree is dirty
-export GIT_PS1_SHOWSTASHSTATE=y      # Show if there are stashed changes
-export GIT_PS1_SHOWUNTRACKEDFILES=y  # Show if there are untracked files
-export GIT_PS1_SHOWUPSTREAM=auto     # Show upstream branch status
+export GIT_PS1_SHOWDIRTYSTATE=y     # Show if working tree is dirty
+export GIT_PS1_SHOWSTASHSTATE=y     # Show if there are stashed changes
+export GIT_PS1_SHOWUNTRACKEDFILES=y # Show if there are untracked files
+export GIT_PS1_SHOWUPSTREAM=auto    # Show upstream branch status
 
 PROMPT_CHAR="❯"
 [[ "$TERM" == "linux" ]] && PROMPT_CHAR=">"
@@ -159,7 +159,7 @@ PROMPT_CHAR="❯"
 
 PROMPT_COMMAND() {
   local last_exit_status="$?"
-  
+
   local c_reset='\[\033[00m\]'
   local c_dir='\[\033[01;34m\]'
   local c_good='\[\033[01;32m\]'
@@ -174,7 +174,7 @@ PROMPT_COMMAND() {
 
   local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
   local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
-  
+
   if $HAS_GIT_PROMPT; then
     __git_ps1 "$pre" "$post" " %s"
   else
@@ -187,4 +187,3 @@ export PROMPT_COMMAND=PROMPT_COMMAND
 if [[ -e ~/.bashrc.local.bash ]]; then
   . ~/.bashrc.local.bash
 fi
-

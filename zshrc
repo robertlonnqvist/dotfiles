@@ -7,7 +7,7 @@ _load_plugin() {
   local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
 
   if [[ ! -e "${plugin_path}" ]]; then
-    command -v git >/dev/null || return
+    (($+commands[git])) || return
     git clone --depth=1 "https://github.com/$1.git" "${plugin_path}" >/dev/null 2>&1 || return
   fi
 
@@ -22,7 +22,7 @@ SAVEHIST=10000
 HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 
 # Remove path separator from WORDCHARS.
-WORDCHARS=${WORDCHARS//[\/]}
+WORDCHARS=${WORDCHARS//[\/]/}
 
 setopt hist_ignore_space
 setopt hist_ignore_dups
@@ -43,7 +43,7 @@ typeset -U path fpath
   local brew_exe
   if [[ "$OSTYPE" == "darwin"* ]]; then
     brew_exe="/opt/homebrew/bin/brew"
-     [[ ! -x "$brew_exe" ]] && brew_exe="/usr/local/bin/brew"
+    [[ ! -x "$brew_exe" ]] && brew_exe="/usr/local/bin/brew"
   else
     brew_exe="/home/linuxbrew/.linuxbrew/bin/brew"
     [[ ! -x "$brew_exe" ]] && brew_exe="${HOME}/.linuxbrew/bin/brew"
@@ -82,7 +82,9 @@ alias zgrep="grep --color=auto"
 alias zegrep="zegrep --color=auto"
 alias zfgrep="zfgrep --color=auto"
 
-if command -v bat &> /dev/null; then
+# Modern Utility Configurations
+
+if (($+commands[bat])); then
   alias cat="bat -pp"
   alias less="bat --paging=always"
   alias more="bat --paging=always"
@@ -93,24 +95,49 @@ if command -v bat &> /dev/null; then
   export BAT_PAGER="less -RF"
 fi
 
-# platform specific stuff
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
-  alias ls="ls -GFh"
+if (($+commands[eza])); then
+  alias ls="eza --icons=auto --group-directories-first"
+  alias ll="eza -lh --icons=auto --group-directories-first --git"
+  alias la="eza -lah --icons=auto --group-directories-first --git"
+  alias tree="eza --tree --icons=auto --group-directories-first"
 else
-  alias ls="ls --color=auto -Fh"
+  # Fallback to standard system utilities if modern engines are absent
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    export CLICOLOR=1
+    export LSCOLORS="exfxcxdxbxegedabagacad"
+    alias ls="ls -GFh"
+  else
+    alias ls="ls --color=auto -Fh"
+  fi
 fi
 
-if [[ -f ~/.dir_colors ]] && command -v dircolors >/dev/null 2>&1; then
+if (($+commands[rg])); then
+  alias grep="rg"
+fi
+
+if (($+commands[fd])); then
+  # Sane shortcut to avoid breaking POSIX find automation scripts
+  alias f="fd"
+fi
+
+if (($+commands[zoxide])); then
+  eval "$(zoxide init zsh)"
+  alias cd="z"
+fi
+
+if [[ -f ~/.dir_colors ]] && (($+commands[dircolors])); then
   eval "$(dircolors -b ~/.dir_colors)"
 else
   export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 fi
 
-# functions
-man() {
-  env LESS_TERMCAP_mb=$'\e[01;33m' \
+# High-performance Manual Page Formatting Engine using bat
+if (($+commands[bat])); then
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  export MANROFFOPT="-c"
+else
+  man() {
+    env LESS_TERMCAP_mb=$'\e[01;33m' \
       LESS_TERMCAP_md=$'\e[01;34m' \
       LESS_TERMCAP_me=$'\e[0m' \
       LESS_TERMCAP_se=$'\e[0m' \
@@ -118,7 +145,8 @@ man() {
       LESS_TERMCAP_ue=$'\e[0m' \
       LESS_TERMCAP_us=$'\e[01;36m' \
       man "$@"
-}
+  }
+fi
 
 # completion
 zmodload zsh/complist
@@ -132,7 +160,7 @@ else
   compinit -i -d "$compdump"
 fi
 # Compile zcompdump to bytecode in the background for even faster loading next time
-{ [[ ! "$compdump.zwc" -nt "$compdump" ]] && zcompile "$compdump" } &!
+{ [[ ! "$compdump.zwc" -nt "$compdump" ]] && zcompile "$compdump"; } &|
 
 comp-rebuild() {
   local compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
@@ -217,23 +245,24 @@ bindkey -M menuselect '^[' undo
 # Change cursor shape for different vi modes
 function _set_cursor_shape() {
   case ${KEYMAP} in
-    vicmd)      print -n "\e[1 q" ;; # Block for Command Mode
-    viins|main) print -n "\e[5 q" ;; # Beam for Insert Mode
-    isearch)    print -n "\e[5 q" ;; # Beam for Search Mode
+  vicmd) print -n "\e[1 q" ;;        # Block for Command Mode
+  viins | main) print -n "\e[5 q" ;; # Beam for Insert Mode
+  isearch) print -n "\e[5 q" ;;      # Beam for Search Mode
   esac
 }
 
 # Define the widgets
-zle-keymap-select() { _set_cursor_shape }
-zle-line-init() { zle -K viins; _set_cursor_shape }
+zle-keymap-select() { _set_cursor_shape; }
+zle-line-init() {
+  zle -K viins
+  _set_cursor_shape
+}
 
 zle -N zle-keymap-select
 zle -N zle-line-init
 
 # Ensure cursor resets to beam before every new prompt
 precmd_functions+=(_set_cursor_shape)
-
-# see https://gist.github.com/ketsuban/651e24c2d59506922d928c65c163d79c
 
 # ctrl-left and alt-left
 [[ -n "${terminfo[kLFT3]}" ]] && bindkey "${terminfo[kLFT3]}" backward-word
@@ -264,7 +293,8 @@ fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 
 PURE_GIT_PULL=0
 
-autoload -U promptinit; promptinit
+autoload -U promptinit
+promptinit
 prompt pure
 
 if [[ -e ~/.zshrc.local.zsh ]]; then
