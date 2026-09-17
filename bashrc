@@ -72,13 +72,21 @@ if command -v bat &>/dev/null; then
   export BAT_PAGER="less -RF"
 fi
 
-# platform specific stuff
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
-  alias ls="ls -GFh"
+if command -v eza &>/dev/null; then
+  alias ls="eza --icons=auto --group-directories-first"
+  alias ll="eza -lh --icons=auto --group-directories-first --git"
+  alias la="eza -lah --icons=auto --group-directories-first --git"
+  alias tree="eza --tree --icons=auto --group-directories-first"
 else
-  alias ls="ls --color=auto -Fh"
+
+  # platform specific stuff
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    export CLICOLOR=1
+    export LSCOLORS="exfxcxdxbxegedabagacad"
+    alias ls="ls -GFh"
+  else
+    alias ls="ls --color=auto -Fh"
+  fi
 fi
 
 if [[ -f ~/.dir_colors ]] && command -v dircolors >/dev/null 2>&1; then
