@@ -3,6 +3,12 @@
   email = robert@robertlonnqvist.com
 [core]
   autocrlf = input
-  safecrlf = true
+  safecrlf = warn
 [pull]
   rebase = true
+[init]
+  defaultBranch = main
+[push]
+  autoSetupRemote = true
+[merge]
+  conflictstyle = zdiff3

@@ -25,10 +25,19 @@ set showcmd     " show incomplete commands down the bottom
 
 set background=dark
 
-set clipboard=unnamed " use system clipboard by default
+if has('clipboard')
+  if has('unnamedplus')
+    set clipboard=unnamed,unnamedplus
+  else
+    set clipboard=unnamed
+  endif
+endif
 
-set timeoutlen=1000 ttimeoutlen=0 " reduce annoying timeouts
+set timeoutlen=1000 ttimeoutlen=10 " reduce annoying timeouts
 
 " enable dictionary auto-completion in Markdown files and Git Commit Messages
-autocmd FileType markdown setlocal spell complete+=kspell
-autocmd FileType gitcommit setlocal spell complete+=kspell
+augroup DotfileSpell
+  autocmd!
+  autocmd FileType markdown setlocal spell complete+=kspell
+  autocmd FileType gitcommit setlocal spell complete+=kspell
+augroup END

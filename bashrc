@@ -27,12 +27,15 @@ unset BREW_EXE
 
 path_prepend() {
   [[ -d "$1" ]] || return
-  # Remove all instances of the path first
-  PATH=":${PATH}:"
-  PATH="${PATH//:$1:/:}"
-  # Clean up edge colons and prepend
-  PATH="${1}${PATH%:}"
-  PATH="${PATH#:}"
+  local cleaned=":${PATH}:"
+  cleaned="${cleaned//:$1:/:}"
+  cleaned="${cleaned#:}"
+  cleaned="${cleaned%:}"
+  if [[ -n "$cleaned" ]]; then
+    PATH="$1:$cleaned"
+  else
+    PATH="$1"
+  fi
   export PATH
 }
 
@@ -107,22 +110,6 @@ man() {
     man "$@"
 }
 
-get_toolbox_name() {
-  if [[ -f /run/.containerenv ]]; then
-    while IFS= read -r line; do
-      if [[ "$line" =~ ^name=\"(.*)\" ]]; then
-        echo "(${BASH_REMATCH[1]})"
-        return
-      fi
-    done </run/.containerenv
-  fi
-  echo ""
-}
-
-if [ -f /run/.containerenv ]; then
-  TOOLBOX_NAME=$(get_toolbox_name)
-fi
-
 # Completion
 if ! declare -F _completion_loader >/dev/null; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
@@ -141,56 +128,79 @@ if ! declare -F _completion_loader >/dev/null; then
   fi
 fi
 
-# Git prompt
-HAS_GIT_PROMPT=false
-if ! declare -F __git_ps1 >/dev/null; then
-  if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
-    . /usr/share/git-core/contrib/completion/git-prompt.sh
-    HAS_GIT_PROMPT=true
-  elif [ -f /usr/share/git/completion/git-prompt.sh ]; then
-    . /usr/share/git/completion/git-prompt.sh
-    HAS_GIT_PROMPT=true
+if command -v starship &>/dev/null; then
+  eval "$(starship init bash)"
+else
+
+  get_toolbox_name() {
+    if [[ -f /run/.containerenv ]]; then
+      while IFS= read -r line; do
+        if [[ "$line" =~ ^name=\"(.*)\" ]]; then
+          echo "(${BASH_REMATCH[1]})"
+          return
+        fi
+      done </run/.containerenv
+    fi
+    echo ""
+  }
+
+  if [ -f /run/.containerenv ]; then
+    TOOLBOX_NAME=$(get_toolbox_name)
   fi
+
+
+  # Git prompt
+  if ! declare -F __git_ps1 >/dev/null; then
+    if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+      . /usr/share/git-core/contrib/completion/git-prompt.sh
+    elif [ -f /usr/share/git/completion/git-prompt.sh ]; then
+      . /usr/share/git/completion/git-prompt.sh
+    fi
+  fi
+
+  HAS_GIT_PROMPT=false
+  declare -F __git_ps1 >/dev/null && HAS_GIT_PROMPT=true
+
+  # Configure git prompt variables
+  export GIT_PS1_SHOWCOLORHINTS=true
+  export GIT_PS1_SHOWDIRTYSTATE=y     # Show if working tree is dirty
+  export GIT_PS1_SHOWSTASHSTATE=y     # Show if there are stashed changes
+  export GIT_PS1_SHOWUNTRACKEDFILES=y # Show if there are untracked files
+  export GIT_PS1_SHOWUPSTREAM=auto    # Show upstream branch status
+
+  PROMPT_CHAR="❯"
+  [[ "$TERM" == "linux" ]] && PROMPT_CHAR=">"
+
+  [[ -n "$TOOLBOX_NAME" ]] && TOOLBOX_PREFIX="$TOOLBOX_NAME " || TOOLBOX_PREFIX=""
+
+  _render_prompt() {
+    local last_exit_status="$?"
+
+    local c_reset='\[\033[00m\]'
+    local c_dir='\[\033[01;34m\]'
+    local c_good='\[\033[01;32m\]'
+    local c_bad='\[\033[01;31m\]'
+
+    local prompt_char_color
+    if [[ "$last_exit_status" -eq 0 ]]; then
+      prompt_char_color="$c_good"
+    else
+      prompt_char_color="$c_bad"
+    fi
+
+    local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
+    local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
+
+    if $HAS_GIT_PROMPT; then
+      __git_ps1 "$pre" "$post" " %s"
+    else
+      PS1="$pre $post"
+    fi
+  }
+
+  PROMPT_COMMAND=_render_prompt
 fi
 
-# Configure git prompt variables
-export GIT_PS1_SHOWCOLORHINTS=true
-export GIT_PS1_SHOWDIRTYSTATE=y     # Show if working tree is dirty
-export GIT_PS1_SHOWSTASHSTATE=y     # Show if there are stashed changes
-export GIT_PS1_SHOWUNTRACKEDFILES=y # Show if there are untracked files
-export GIT_PS1_SHOWUPSTREAM=auto    # Show upstream branch status
-
-PROMPT_CHAR="❯"
-[[ "$TERM" == "linux" ]] && PROMPT_CHAR=">"
-
-[[ -n "$TOOLBOX_NAME" ]] && TOOLBOX_PREFIX="$TOOLBOX_NAME " || TOOLBOX_PREFIX=""
-
-PROMPT_COMMAND() {
-  local last_exit_status="$?"
-
-  local c_reset='\[\033[00m\]'
-  local c_dir='\[\033[01;34m\]'
-  local c_good='\[\033[01;32m\]'
-  local c_bad='\[\033[01;31m\]'
-
-  local prompt_char_color
-  if [[ "$last_exit_status" -eq 0 ]]; then
-    prompt_char_color="$c_good"
-  else
-    prompt_char_color="$c_bad"
-  fi
-
-  local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
-  local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
-
-  if $HAS_GIT_PROMPT; then
-    __git_ps1 "$pre" "$post" " %s"
-  else
-    PS1="$pre $post"
-  fi
-}
-
-export PROMPT_COMMAND=PROMPT_COMMAND
 
 if [[ -e ~/.bashrc.local.bash ]]; then
   . ~/.bashrc.local.bash

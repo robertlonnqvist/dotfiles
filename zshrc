@@ -2,6 +2,9 @@
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
+# Stop here for non-interactive shells
+[[ -o interactive ]] || return
+
 _load_plugin() {
   local plugin_name="${1##*/}"
   local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
@@ -61,26 +64,19 @@ fi
 
 path=(
   "${XDG_BIN_HOME:-${HOME}/.local/bin}"
+  "${HOME}/.cargo/bin"
   "${GOPATH:-${HOME}/go}/bin"
-  ~/.cargo/bin
+  "${HOME}/.node_modules/bin"
   $path
 )
 # Filter out non-existent directories in one go
 path=($^path(N-/))
-
-# Stop here for non-interactive shells
-[[ -o interactive ]] || return
 
 # aliases
 alias tree="tree -C"
 alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias zgrep="grep --color=auto"
-alias zegrep="zegrep --color=auto"
-alias zfgrep="zfgrep --color=auto"
 
 # Modern Utility Configurations
 
@@ -111,15 +107,6 @@ else
   fi
 fi
 
-if (($+commands[rg])); then
-  alias grep="rg"
-fi
-
-if (($+commands[fd])); then
-  # Sane shortcut to avoid breaking POSIX find automation scripts
-  alias f="fd"
-fi
-
 if (($+commands[zoxide])); then
   eval "$(zoxide init --cmd=cd zsh)"
 fi
@@ -148,6 +135,8 @@ else
 fi
 
 # completion
+_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
+
 zmodload zsh/complist
 typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 autoload -Uz compinit
@@ -221,7 +210,6 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
-bindkey '^y' accept-line
 bindkey '^l' clear-screen
 
 # edit line in vim buffer ctrl-v
@@ -238,15 +226,16 @@ bindkey -M menuselect 'left' vi-backward-char
 bindkey -M menuselect 'down' vi-down-line-or-history
 bindkey -M menuselect 'up' vi-up-line-or-history
 bindkey -M menuselect 'right' vi-forward-char
+bindkey -M menuselect '^y' accept-line
 # exit menuselect on escape
 bindkey -M menuselect '^[' undo
 
 # Change cursor shape for different vi modes
 function _set_cursor_shape() {
   case ${KEYMAP} in
-  vicmd) print -n "\e[1 q" ;;        # Block for Command Mode
-  viins | main) print -n "\e[5 q" ;; # Beam for Insert Mode
-  isearch) print -n "\e[5 q" ;;      # Beam for Search Mode
+  vicmd) print -n "\e[1 q" ;;                  # Block for Command Mode
+  viins | main | isearch) print -n "\e[5 q" ;; # Beam for Insert / Search Mode
+  *) print -n "\e[5 q" ;;                      # Beam for default
   esac
 }
 
@@ -261,7 +250,8 @@ zle -N zle-keymap-select
 zle -N zle-line-init
 
 # Ensure cursor resets to beam before every new prompt
-precmd_functions+=(_set_cursor_shape)
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _set_cursor_shape
 
 # ctrl-left and alt-left
 [[ -n "${terminfo[kLFT3]}" ]] && bindkey "${terminfo[kLFT3]}" backward-word
@@ -276,14 +266,13 @@ precmd_functions+=(_set_cursor_shape)
 # make reverse completion work (Shift+Tab)
 [[ -n "${terminfo[kcbt]}" ]] && bindkey "${terminfo[kcbt]}" reverse-menu-complete
 
-_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
-
 autoload -Uz colors && colors
 
 # plugins (order matters)
 _load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+bindkey '^y' autosuggest-accept
 
 _load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
 _load_plugin sindresorhus/pure
