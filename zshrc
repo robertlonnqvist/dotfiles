@@ -274,16 +274,20 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 bindkey '^y' autosuggest-accept
 
-_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
-_load_plugin sindresorhus/pure
+if (($+commands[starship])); then
+  eval "$(starship init zsh)"
+else
+  _load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
+  _load_plugin sindresorhus/pure
 
-fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
+  fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 
-PURE_GIT_PULL=0
+  PURE_GIT_PULL=0
 
-autoload -U promptinit
-promptinit
-prompt pure
+  autoload -U promptinit
+  promptinit
+  prompt pure
+fi
 
 if [[ -e ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
