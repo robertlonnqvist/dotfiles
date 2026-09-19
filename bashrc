@@ -2,8 +2,8 @@
 
 # If not running interactively, don't do anything further
 case $- in
-    *i*) ;;
-      *) return;;
+*i*) ;;
+*) return ;;
 esac
 
 set -o vi
@@ -11,33 +11,38 @@ set -o vi
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
-mkdir -p "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CACHE_HOME:-${HOME}/.cache}" \
-         "${XDG_BIN_HOME:-${HOME}/.local/bin}"
+# Detect and initialize Homebrew/Linuxbrew
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  BREW_EXE="/opt/homebrew/bin/brew"
+  [[ ! -x "$BREW_EXE" ]] && BREW_EXE="/usr/local/bin/brew"
+else
+  BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
+  [[ ! -x "$BREW_EXE" ]] && BREW_EXE="${HOME}/.linuxbrew/bin/brew"
+fi
 
-declare -a potential_paths=(
-  /usr/local/bin
-  /usr/local/sbin
-  /opt/homebrew/bin
-  /opt/homebrew/sbin
-  "${GOPATH:-${HOME}/go}/bin"
-  "${HOME}/.cargo/bin"
-  "${HOME}/.node_modules/bin"
-  "${XDG_BIN_HOME:-${HOME}/.local/bin}"
-)
+if [[ -x "$BREW_EXE" ]]; then
+  eval "$("$BREW_EXE" shellenv)"
+fi
+unset BREW_EXE
 
-for p in "${potential_paths[@]}"; do
-  if [[ -d "$p" ]]; then
-    PATH=":${PATH}:"
-    PATH="${PATH//:$p:/:}"
-    PATH="${p}${PATH%:}"
-    PATH="${PATH#:}"
+path_prepend() {
+  [[ -d "$1" ]] || return
+  local cleaned=":${PATH}:"
+  cleaned="${cleaned//:$1:/:}"
+  cleaned="${cleaned#:}"
+  cleaned="${cleaned%:}"
+  if [[ -n "$cleaned" ]]; then
+    PATH="$1:$cleaned"
+  else
+    PATH="$1"
   fi
-done
+  export PATH
+}
 
-unset p
-unset potential_paths
+path_prepend "${HOME}/.node_modules/bin"
+path_prepend "${GOPATH:-${HOME}/go}/bin"
+path_prepend "${HOME}/.cargo/bin"
+path_prepend "${XDG_BIN_HOME:-${HOME}/.local/bin}"
 
 export PATH
 
@@ -58,23 +63,33 @@ alias tree="tree -C"
 alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias zgrep="grep --color=auto"
-alias zegrep="zegrep --color=auto"
-alias zfgrep="zfgrep --color=auto"
 
-if type -p bat > /dev/null; then
-  alias cat="bat -p"
+if command -v bat &>/dev/null; then
+  alias cat="bat -pp"
+  alias less="bat --paging=always"
+  alias more="bat --paging=always"
+
+  # Standard pager for system compatibility
+  export PAGER="less -RF"
+  # Tells bat specifically how to behave when it pages
+  export BAT_PAGER="less -RF"
 fi
 
-# platform specific stuff
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
-  alias ls="ls -GFh"
+if command -v eza &>/dev/null; then
+  alias ls="eza --icons=auto --group-directories-first"
+  alias ll="eza -lh --icons=auto --group-directories-first --git"
+  alias la="eza -lah --icons=auto --group-directories-first --git"
+  alias tree="eza --tree --icons=auto --group-directories-first"
 else
-  alias ls="ls --color=auto -Fh"
+
+  # platform specific stuff
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    export CLICOLOR=1
+    export LSCOLORS="exfxcxdxbxegedabagacad"
+    alias ls="ls -GFh"
+  else
+    alias ls="ls --color=auto -Fh"
+  fi
 fi
 
 if [[ -f ~/.dir_colors ]] && command -v dircolors >/dev/null 2>&1; then
@@ -86,79 +101,107 @@ fi
 # functions
 man() {
   env LESS_TERMCAP_mb=$'\e[01;33m' \
-      LESS_TERMCAP_md=$'\e[01;34m' \
-      LESS_TERMCAP_me=$'\e[0m' \
-      LESS_TERMCAP_se=$'\e[0m' \
-      LESS_TERMCAP_so=$'\e[01;43;30m' \
-      LESS_TERMCAP_ue=$'\e[0m' \
-      LESS_TERMCAP_us=$'\e[01;36m' \
-      man "$@"
+    LESS_TERMCAP_md=$'\e[01;34m' \
+    LESS_TERMCAP_me=$'\e[0m' \
+    LESS_TERMCAP_se=$'\e[0m' \
+    LESS_TERMCAP_so=$'\e[01;43;30m' \
+    LESS_TERMCAP_ue=$'\e[0m' \
+    LESS_TERMCAP_us=$'\e[01;36m' \
+    man "$@"
 }
-
-get_toolbox_name() {
-  if [[ -f /run/.containerenv ]]; then
-    while IFS= read -r line; do
-      if [[ "$line" =~ ^name=\"(.*)\" ]]; then
-        echo "(${BASH_REMATCH[1]})"
-        return
-      fi
-    done < /run/.containerenv
-  fi
-  echo ""
-}
-
-TOOLBOX_NAME=$(get_toolbox_name)
 
 # Completion
 if ! declare -F _completion_loader >/dev/null; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
-  elif [ -f /opt/homebrew/etc/profile.d/bash_completion.sh ]; then
-    . /opt/homebrew/etc/profile.d/bash_completion.sh
+  fi
+
+  if [[ -n "${HOMEBREW_PREFIX}" ]]; then
+    if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+      . "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+    elif [[ -d "${HOMEBREW_PREFIX}/etc/bash_completion.d" ]]; then
+      for completion in "${HOMEBREW_PREFIX}/etc/bash_completion.d/"*; do
+        [[ -r "$completion" ]] && . "$completion"
+      done
+      unset completion
+    fi
   fi
 fi
 
-# Git prompt
-if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
-  . /usr/share/git-core/contrib/completion/git-prompt.sh
-fi
+if command -v starship &>/dev/null; then
+  eval "$(starship init bash)"
+else
 
-# Configure git prompt variables
-export GIT_PS1_SHOWCOLORHINTS=true
-export GIT_PS1_SHOWDIRTYSTATE=y      # Show if working tree is dirty
-export GIT_PS1_SHOWSTASHSTATE=y      # Show if there are stashed changes
-export GIT_PS1_SHOWUNTRACKEDFILES=y  # Show if there are untracked files
-export GIT_PS1_SHOWUPSTREAM=auto     # Show upstream branch status
+  get_toolbox_name() {
+    if [[ -f /run/.containerenv ]]; then
+      while IFS= read -r line; do
+        if [[ "$line" =~ ^name=\"(.*)\" ]]; then
+          echo "(${BASH_REMATCH[1]})"
+          return
+        fi
+      done </run/.containerenv
+    fi
+    echo ""
+  }
 
-PROMPT_CHAR="❯"
-[[ "$TERM" == "linux" ]] && PROMPT_CHAR=">"
-
-[[ -n "$TOOLBOX_NAME" ]] && TOOLBOX_PREFIX="$TOOLBOX_NAME " || TOOLBOX_PREFIX=""
-
-PROMPT_COMMAND() {
-  local last_exit_status="$?"
-  
-  local c_reset='\[\033[00m\]'
-  local c_dir='\[\033[01;34m\]'
-  local c_good='\[\033[01;32m\]'
-  local c_bad='\[\033[01;31m\]'
-
-  local prompt_char_color
-  if [[ "$last_exit_status" -eq 0 ]]; then
-    prompt_char_color="$c_good"
-  else
-    prompt_char_color="$c_bad"
+  if [ -f /run/.containerenv ]; then
+    TOOLBOX_NAME=$(get_toolbox_name)
   fi
 
-  local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
-  local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
-  
-  __git_ps1 "$pre" "$post" " %s"
-}
 
-export PROMPT_COMMAND=PROMPT_COMMAND
+  # Git prompt
+  if ! declare -F __git_ps1 >/dev/null; then
+    if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+      . /usr/share/git-core/contrib/completion/git-prompt.sh
+    elif [ -f /usr/share/git/completion/git-prompt.sh ]; then
+      . /usr/share/git/completion/git-prompt.sh
+    fi
+  fi
+
+  HAS_GIT_PROMPT=false
+  declare -F __git_ps1 >/dev/null && HAS_GIT_PROMPT=true
+
+  # Configure git prompt variables
+  export GIT_PS1_SHOWCOLORHINTS=true
+  export GIT_PS1_SHOWDIRTYSTATE=y     # Show if working tree is dirty
+  export GIT_PS1_SHOWSTASHSTATE=y     # Show if there are stashed changes
+  export GIT_PS1_SHOWUNTRACKEDFILES=y # Show if there are untracked files
+  export GIT_PS1_SHOWUPSTREAM=auto    # Show upstream branch status
+
+  PROMPT_CHAR="❯"
+  [[ "$TERM" == "linux" ]] && PROMPT_CHAR=">"
+
+  [[ -n "$TOOLBOX_NAME" ]] && TOOLBOX_PREFIX="$TOOLBOX_NAME " || TOOLBOX_PREFIX=""
+
+  _render_prompt() {
+    local last_exit_status="$?"
+
+    local c_reset='\[\033[00m\]'
+    local c_dir='\[\033[01;34m\]'
+    local c_good='\[\033[01;32m\]'
+    local c_bad='\[\033[01;31m\]'
+
+    local prompt_char_color
+    if [[ "$last_exit_status" -eq 0 ]]; then
+      prompt_char_color="$c_good"
+    else
+      prompt_char_color="$c_bad"
+    fi
+
+    local pre="\n$TOOLBOX_PREFIX$c_dir\w$c_reset"
+    local post="\n$prompt_char_color$PROMPT_CHAR$c_reset "
+
+    if $HAS_GIT_PROMPT; then
+      __git_ps1 "$pre" "$post" " %s"
+    else
+      PS1="$pre $post"
+    fi
+  }
+
+  PROMPT_COMMAND=_render_prompt
+fi
+
 
 if [[ -e ~/.bashrc.local.bash ]]; then
   . ~/.bashrc.local.bash
 fi
-

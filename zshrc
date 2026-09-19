@@ -2,23 +2,15 @@
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
-# setup standard directories
-for p in "${XDG_DATA_HOME:-${HOME}/.local/share}" \
-         "${XDG_STATE_HOME:-${HOME}/.local/state}" \
-         "${XDG_CACHE_HOME:-${HOME}/.cache}" \
-         "${XDG_BIN_HOME:-${HOME}/.local/bin}"; do
-  if [[ ! -e "${p}" ]]; then
-    mkdir -p "${p}"
-  fi
-done
-unset p
+# Stop here for non-interactive shells
+[[ -o interactive ]] || return
 
 _load_plugin() {
   local plugin_name="${1##*/}"
   local plugin_path="${XDG_DATA_HOME:-${HOME}/.local/share}/${plugin_name}"
 
   if [[ ! -e "${plugin_path}" ]]; then
-    command -v git >/dev/null || return
+    (($+commands[git])) || return
     git clone --depth=1 "https://github.com/$1.git" "${plugin_path}" >/dev/null 2>&1 || return
   fi
 
@@ -33,7 +25,7 @@ SAVEHIST=10000
 HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 
 # Remove path separator from WORDCHARS.
-WORDCHARS=${WORDCHARS//[\/]}
+WORDCHARS=${WORDCHARS//[\/]/}
 
 setopt hist_ignore_space
 setopt hist_ignore_dups
@@ -48,58 +40,90 @@ fi
 
 # paths
 typeset -U path fpath
+
+# Detect and initialize Homebrew/Linuxbrew
+() {
+  local brew_exe
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    brew_exe="/opt/homebrew/bin/brew"
+    [[ ! -x "$brew_exe" ]] && brew_exe="/usr/local/bin/brew"
+  else
+    brew_exe="/home/linuxbrew/.linuxbrew/bin/brew"
+    [[ ! -x "$brew_exe" ]] && brew_exe="${HOME}/.linuxbrew/bin/brew"
+  fi
+
+  if [[ -x "$brew_exe" ]]; then
+    eval "$($brew_exe shellenv)"
+    fpath=("${HOMEBREW_PREFIX}/share/zsh/site-functions" $fpath)
+  fi
+}
+
+if [ -f "/run/current-system/sw/share/zsh/site-functions" ]; then
+  fpath=("/run/current-system/sw/share/zsh/site-functions" $fpath)
+fi
+
 path=(
-  /usr/local/{bin,sbin}
-  /opt/homebrew/{bin,sbin}
-  "${GOPATH:-${HOME}/go}/bin"
-  ~/.cargo/bin
   "${XDG_BIN_HOME:-${HOME}/.local/bin}"
+  "${HOME}/.cargo/bin"
+  "${GOPATH:-${HOME}/go}/bin"
+  "${HOME}/.node_modules/bin"
   $path
 )
 # Filter out non-existent directories in one go
 path=($^path(N-/))
-
-
-if [[ -e /opt/homebrew/share/zsh/site-functions ]]; then
-  fpath+=/opt/homebrew/share/zsh/site-functions
-fi
-
-# Stop here for non-interactive shells
-[[ -o interactive ]] || return
 
 # aliases
 alias tree="tree -C"
 alias python-http-server="python3 -m http.server"
 alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
-alias egrep="egrep --color=auto"
-alias fgrep="fgrep --color=auto"
-alias zgrep="grep --color=auto"
-alias zegrep="zegrep --color=auto"
-alias zfgrep="zfgrep --color=auto"
 
-if command -v bat &> /dev/null; then
-  alias cat="bat -p"
+# Modern Utility Configurations
+
+if (($+commands[bat])); then
+  alias cat="bat -pp"
+  alias less="bat --paging=always"
+  alias more="bat --paging=always"
+
+  # Standard pager for system compatibility
+  export PAGER="less -RF"
+  # Tells bat specifically how to behave when it pages
+  export BAT_PAGER="less -RF"
 fi
 
-# platform specific stuff
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
-  alias ls="ls -GFh"
+if (($+commands[eza])); then
+  alias ls="eza --icons=auto --group-directories-first"
+  alias ll="eza -lh --icons=auto --group-directories-first --git"
+  alias la="eza -lah --icons=auto --group-directories-first --git"
+  alias tree="eza --tree --icons=auto --group-directories-first"
 else
-  alias ls="ls --color=auto -Fh"
+  # Fallback to standard system utilities if modern engines are absent
+  if [[ "${OSTYPE}" == "darwin"* ]]; then
+    export CLICOLOR=1
+    export LSCOLORS="exfxcxdxbxegedabagacad"
+    alias ls="ls -GFh"
+  else
+    alias ls="ls --color=auto -Fh"
+  fi
 fi
 
-if [[ -f ~/.dir_colors ]] && command -v dircolors >/dev/null 2>&1; then
+if (($+commands[zoxide])); then
+  eval "$(zoxide init --cmd=cd zsh)"
+fi
+
+if [[ -f ~/.dir_colors ]] && (($+commands[dircolors])); then
   eval "$(dircolors -b ~/.dir_colors)"
 else
   export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 fi
 
-# functions
-man() {
-  env LESS_TERMCAP_mb=$'\e[01;33m' \
+# High-performance Manual Page Formatting Engine using bat
+if (($+commands[bat])); then
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  export MANROFFOPT="-c"
+else
+  man() {
+    env LESS_TERMCAP_mb=$'\e[01;33m' \
       LESS_TERMCAP_md=$'\e[01;34m' \
       LESS_TERMCAP_me=$'\e[0m' \
       LESS_TERMCAP_se=$'\e[0m' \
@@ -107,9 +131,12 @@ man() {
       LESS_TERMCAP_ue=$'\e[0m' \
       LESS_TERMCAP_us=$'\e[01;36m' \
       man "$@"
-}
+  }
+fi
 
 # completion
+_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
+
 zmodload zsh/complist
 typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 autoload -Uz compinit
@@ -121,7 +148,7 @@ else
   compinit -i -d "$compdump"
 fi
 # Compile zcompdump to bytecode in the background for even faster loading next time
-{ [[ ! "$compdump.zwc" -nt "$compdump" ]] && zcompile "$compdump" } &!
+{ [[ ! "$compdump.zwc" -nt "$compdump" ]] && zcompile "$compdump"; } &|
 
 comp-rebuild() {
   local compdump="${XDG_CACHE_HOME:-${HOME}/.cache}/zcompdump"
@@ -183,7 +210,6 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
-bindkey '^y' accept-line
 bindkey '^l' clear-screen
 
 # edit line in vim buffer ctrl-v
@@ -200,29 +226,32 @@ bindkey -M menuselect 'left' vi-backward-char
 bindkey -M menuselect 'down' vi-down-line-or-history
 bindkey -M menuselect 'up' vi-up-line-or-history
 bindkey -M menuselect 'right' vi-forward-char
+bindkey -M menuselect '^y' accept-line
 # exit menuselect on escape
 bindkey -M menuselect '^[' undo
 
 # Change cursor shape for different vi modes
 function _set_cursor_shape() {
   case ${KEYMAP} in
-    vicmd)      print -n "\e[1 q" ;; # Block for Command Mode
-    viins|main) print -n "\e[5 q" ;; # Beam for Insert Mode
-    isearch)    print -n "\e[5 q" ;; # Beam for Search Mode
+  vicmd) print -n "\e[1 q" ;;                  # Block for Command Mode
+  viins | main | isearch) print -n "\e[5 q" ;; # Beam for Insert / Search Mode
+  *) print -n "\e[5 q" ;;                      # Beam for default
   esac
 }
 
 # Define the widgets
-zle-keymap-select() { _set_cursor_shape }
-zle-line-init() { zle -K viins; _set_cursor_shape }
+zle-keymap-select() { _set_cursor_shape; }
+zle-line-init() {
+  zle -K viins
+  _set_cursor_shape
+}
 
 zle -N zle-keymap-select
 zle -N zle-line-init
 
 # Ensure cursor resets to beam before every new prompt
-precmd_functions+=(_set_cursor_shape)
-
-# see https://gist.github.com/ketsuban/651e24c2d59506922d928c65c163d79c
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _set_cursor_shape
 
 # ctrl-left and alt-left
 [[ -n "${terminfo[kLFT3]}" ]] && bindkey "${terminfo[kLFT3]}" backward-word
@@ -237,24 +266,28 @@ precmd_functions+=(_set_cursor_shape)
 # make reverse completion work (Shift+Tab)
 [[ -n "${terminfo[kcbt]}" ]] && bindkey "${terminfo[kcbt]}" reverse-menu-complete
 
-_load_plugin zsh-users/zsh-completions zsh-completions.plugin.zsh
-
 autoload -Uz colors && colors
 
 # plugins (order matters)
 _load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+bindkey '^y' autosuggest-accept
 
-_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
-_load_plugin sindresorhus/pure
+if (($+commands[starship])); then
+  eval "$(starship init zsh)"
+else
+  _load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
+  _load_plugin sindresorhus/pure
 
-fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
+  fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
 
-PURE_GIT_PULL=0
+  PURE_GIT_PULL=0
 
-autoload -U promptinit; promptinit
-prompt pure
+  autoload -U promptinit
+  promptinit
+  prompt pure
+fi
 
 if [[ -e ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh

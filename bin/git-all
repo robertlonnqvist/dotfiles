@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+if [[ ${#} -eq 0 ]]; then
+  echo "Usage: git all <command>"
+  exit 1
+fi
+
+while IFS= read -r -d '' gitdir; do
+  dir="${gitdir%/.git}"
+  echo "Processing ${dir}..."
+  git -C "${dir}" "${@}"
+done < <(find . -mindepth 1 -maxdepth 3 \
+  \( -name node_modules -o -name .cache -o -name vendor \) -prune -o \
+  -name ".git" -print0)
