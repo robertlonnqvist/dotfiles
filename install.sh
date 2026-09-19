@@ -31,8 +31,3 @@ if compgen -G "${DOTFILES_DIR}/bin/*" > /dev/null; then
   done
   unset -v binFile
 fi
-
-if command -v nvim &>/dev/null; then
-  link_file "$(command -v nvim)" "${BIN_DIR}/vi"
-  link_file "$(command -v nvim)" "${BIN_DIR}/vim"
-fi
