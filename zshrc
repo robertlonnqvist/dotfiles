@@ -58,7 +58,7 @@ typeset -U path fpath
   fi
 }
 
-if [ -f "/run/current-system/sw/share/zsh/site-functions" ]; then
+if [[ -d "/run/current-system/sw/share/zsh/site-functions" ]]; then
   fpath=("/run/current-system/sw/share/zsh/site-functions" $fpath)
 fi
 
@@ -142,7 +142,7 @@ typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 autoload -Uz compinit
 
 # Only check security/rebuild cache once a day, otherwise skip checks (-C)
-if [[ -n "$compdump(#qN.m-1)" ]]; then
+if [[ -n $compdump(#qN.m-1) ]]; then
   compinit -C -d "$compdump"
 else
   compinit -i -d "$compdump"
@@ -268,16 +268,9 @@ add-zsh-hook precmd _set_cursor_shape
 
 autoload -Uz colors && colors
 
-# plugins (order matters)
-_load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-bindkey '^y' autosuggest-accept
-
 if (($+commands[starship])); then
   eval "$(starship init zsh)"
 else
-  _load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
   _load_plugin sindresorhus/pure
 
   fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/pure" "${fpath[@]}")
@@ -288,6 +281,14 @@ else
   promptinit
   prompt pure
 fi
+
+# plugins (order matters)
+_load_plugin zsh-users/zsh-autosuggestions zsh-autosuggestions.plugin.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+bindkey '^y' autosuggest-accept
+
+_load_plugin zsh-users/zsh-syntax-highlighting zsh-syntax-highlighting.plugin.zsh
 
 if [[ -e ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh

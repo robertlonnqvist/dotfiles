@@ -99,16 +99,21 @@ else
 fi
 
 # functions
-man() {
-  env LESS_TERMCAP_mb=$'\e[01;33m' \
-    LESS_TERMCAP_md=$'\e[01;34m' \
-    LESS_TERMCAP_me=$'\e[0m' \
-    LESS_TERMCAP_se=$'\e[0m' \
-    LESS_TERMCAP_so=$'\e[01;43;30m' \
-    LESS_TERMCAP_ue=$'\e[0m' \
-    LESS_TERMCAP_us=$'\e[01;36m' \
-    man "$@"
-}
+if command -v bat &>/dev/null; then
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+    export MANROFFOPT="-c"
+ else
+  man() {
+    env LESS_TERMCAP_mb=$'\e[01;33m' \
+      LESS_TERMCAP_md=$'\e[01;34m' \
+      LESS_TERMCAP_me=$'\e[0m' \
+      LESS_TERMCAP_se=$'\e[0m' \
+      LESS_TERMCAP_so=$'\e[01;43;30m' \
+      LESS_TERMCAP_ue=$'\e[0m' \
+      LESS_TERMCAP_us=$'\e[01;36m' \
+      man "$@"
+  }
+fi
 
 # Completion
 if ! declare -F _completion_loader >/dev/null; then
@@ -194,7 +199,7 @@ else
     if $HAS_GIT_PROMPT; then
       __git_ps1 "$pre" "$post" " %s"
     else
-      PS1="$pre $post"
+      PS1="$pre$post"
     fi
   }
 

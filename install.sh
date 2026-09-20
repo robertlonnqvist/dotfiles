@@ -11,7 +11,7 @@ link_file() {
     echo "Backing up ${dest} to ${dest}.bak"
     mv "${dest}" "${dest}.bak"
   fi
-  ln -sf "${src}" "${dest}"
+  ln -sfn "${src}" "${dest}"
 }
 
 mkdir -p "${XDG_DATA_HOME:-${HOME}/.local/share}" \

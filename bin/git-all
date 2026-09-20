@@ -11,4 +11,4 @@ while IFS= read -r -d '' gitdir; do
   git -C "${dir}" "${@}"
 done < <(find . -mindepth 1 -maxdepth 3 \
   \( -name node_modules -o -name .cache -o -name vendor \) -prune -o \
-  -name ".git" -print0)
+  -name ".git" -print0 -prune)
