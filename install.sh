@@ -29,9 +29,7 @@ mkdir -p "${DATA_HOME}" \
   "${XDG_CACHE_HOME:-${HOME}/.cache}" \
   "${BIN_DIR}"
 
-for fileName in gitconfig vimrc; do
-  link_file "${DOTFILES_DIR}/${fileName}" "${HOME}/.${fileName}"
-done
+link_file "${DOTFILES_DIR}/gitconfig" "${HOME}/.gitconfig"
 
 case "${TARGET_SHELL}" in
 bash)
@@ -61,8 +59,8 @@ zsh)
   }
 
   sync_plugin "https://github.com/zsh-users/zsh-completions.git"
-  sync_plugin "https://github.com/zsh-syntax-highlighting/zsh-syntax-highlighting.git"
-  sync_plugin "https://github.com/zsh-autosuggestions/zsh-autosuggestions.git"
+  sync_plugin "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+  sync_plugin "https://github.com/zsh-users/zsh-autosuggestions.git"
   ;;
 *)
   echo "Error: Unsupported shell '${TARGET_SHELL}'. Choose 'bash' or 'zsh'."

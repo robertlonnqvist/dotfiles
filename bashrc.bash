@@ -1,16 +1,40 @@
 # shellcheck disable=SC1090,SC1091
 
+# Exit early, skip env and path stuff for non-interactive shells
+[[ $- == *i* ]] || return
+
 # ==============================================================================
 # ENVIRONMENT & SHELL OPTIONS (Essential)
 # ==============================================================================
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
 
-# Stop processing right here if the shell is non-interactive
-case $- in
-*i*) ;;
-*) return ;;
-esac
+# ==============================================================================
+# RUNTIME / PACKAGE MANAGER MANIFESTS (Homebrew)
+# ==============================================================================
+# Detect and initialize Homebrew/Linuxbrew
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  BREW_EXE="/opt/homebrew/bin/brew"
+else
+  BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
+fi
+
+if [[ -x "$BREW_EXE" ]]; then
+  eval "$("$BREW_EXE" shellenv)"
+fi
+unset BREW_EXE
+
+# ==============================================================================
+# EXECUTABLE PATH SEEDING
+# ==============================================================================
+if [[ -d "${HOME}/.cargo/bin" ]]; then
+  export PATH="${HOME}/.cargo/bin:${PATH}"
+fi
+if [[ -d "${HOME}/go/bin" ]]; then
+  export PATH="${HOME}/go/bin:${PATH}"
+fi
+export PATH="${XDG_BIN_HOME:-${HOME}/.local/bin}:${PATH}"
 
 # Shell adjustments
 set -o vi
@@ -26,51 +50,12 @@ export HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/bash_history"
 # Disable flow control terminal freezing (Ctrl+s, Ctrl+q)
 [[ -t 0 ]] && stty -ixon -ixoff
 
-# ==============================================================================
-# RUNTIME / PACKAGE MANAGER MANIFESTS (Homebrew)
-# ==============================================================================
-# Detect and initialize Homebrew/Linuxbrew
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  BREW_EXE="/opt/homebrew/bin/brew"
-else
-  BREW_EXE="/home/linuxbrew/.linuxbrew/bin/brew"
-fi
-
-if [[ -x "$BREW_EXE" ]]; then
-  eval "$("$BREW_EXE" shellenv)"
-fi
-unset BREW_EXE
-
 # Load runtime environment variables
 export LS_COLORS="di=1;34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
   export LSCOLORS="exfxcxdxbxegedabagacad"
 fi
-
-# ==============================================================================
-# EXECUTABLE PATH SEEDING & FILTERING
-# ==============================================================================
-path_prepend() {
-  [[ -d "$1" ]] || return
-  local cleaned=":${PATH}:"
-  cleaned="${cleaned//:$1:/:}"
-  cleaned="${cleaned#:}"
-  cleaned="${cleaned%:}"
-  if [[ -n "$cleaned" ]]; then
-    PATH="$1:$cleaned"
-  else
-    PATH="$1"
-  fi
-  export PATH
-}
-
-path_prepend "${GOPATH:-${HOME}/go}/bin"
-path_prepend "${HOME}/.cargo/bin"
-path_prepend "${XDG_BIN_HOME:-${HOME}/.local/bin}"
-
-# Clean up path helper function scope
-unset -f path_prepend
 
 # ==============================================================================
 # COMPLETION ENGINE CONFIGURATION & BEHAVIOR
@@ -107,7 +92,6 @@ if command -v bat >/dev/null; then
   alias less="bat --paging=always"
   alias more="bat --paging=always"
   export PAGER="less -RF"
-  export BAT_PAGER="less -RF"
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"
   export MANROFFOPT="-c"
 fi
@@ -137,7 +121,7 @@ fi
 
 # Language runtimes and jump wrappers
 if command -v fnm >/dev/null; then
-  eval "$(fnm env --use-on-cd --shell bash)"
+  eval "$(fnm env --shell bash)"
 fi
 
 if command -v zoxide >/dev/null; then

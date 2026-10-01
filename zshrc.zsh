@@ -1,28 +1,11 @@
+# Exit early, skip env and path stuff for non-interactive shells
+[[ $- == *i* ]] || return
+
 # ==============================================================================
 # ENVIRONMENT & SHELL OPTIONS (Essential)
 # ==============================================================================
 export EDITOR=vim
 [[ -z "${LANG}" ]] && export LANG=en_US.UTF-8
-
-# Stop processing right here if the shell is non-interactive
-[[ -o interactive ]] || return
-
-# History config
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
-
-# Shell adjustments
-WORDCHARS=${WORDCHARS//[\/]/} # Remove path separator from word characters
-
-setopt hist_ignore_space
-setopt hist_ignore_dups
-setopt auto_cd
-setopt extended_glob
-unsetopt case_glob
-
-# Disable flow control terminal freezing (Ctrl+s, Ctrl+q)
-[[ -t 0 ]] && stty -ixon -ixoff
 
 # Setup unified system paths
 typeset -U path fpath
@@ -42,13 +25,6 @@ if [[ -x "$BREW_EXE" ]]; then
 fi
 unset BREW_EXE
 
-# Load runtime environment variables
-export LS_COLORS="di=1;34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-  export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
-fi
-
 # ==============================================================================
 # EXECUTABLE PATH SEEDING & FILTERING
 # ==============================================================================
@@ -61,15 +37,42 @@ path=(
 
 path=($^path(N-/)) # Keep only real physical directories
 
+# History config
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
+
+# Shell adjustments
+WORDCHARS=${WORDCHARS//[\/]/} # Remove path separator from word characters
+
+setopt hist_ignore_space
+setopt hist_ignore_dups
+setopt auto_cd
+setopt extended_glob
+unsetopt case_glob
+
+# Disable flow control terminal freezing (Ctrl+s, Ctrl+q)
+[[ -t 0 ]] && stty -ixon -ixoff
+
+# Load runtime environment variables
+export LS_COLORS="di=1;34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+  export CLICOLOR=1
+  export LSCOLORS="exfxcxdxbxegedabagacad"
+fi
+
 # Inject completion paths *before* initialization steps
-[[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]] &&
+if [[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
   . "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
+fi
 
-[[ -d "${HOMEBREW_PREFIX}/share/zsh/site-functions" ]] &&
+if [[ -d "${HOMEBREW_PREFIX}/share/zsh/site-functions" ]]; then
   fpath=("${HOMEBREW_PREFIX}/share/zsh/site-functions" $fpath)
+fi
 
-[[ -d "/run/current-system/sw/share/zsh/site-functions" ]] &&
+if [[ -d "/run/current-system/sw/share/zsh/site-functions" ]]; then
   fpath=("/run/current-system/sw/share/zsh/site-functions" $fpath)
+fi
 
 # ==============================================================================
 # COMPLETION ENGINE CONFIGURATION & BEHAVIOR
@@ -245,7 +248,7 @@ fi
 
 # Language runtimes and jump wrappers
 if command -v fnm >/dev/null; then
-  eval "$(fnm env --use-on-cd --shell zsh)"
+  eval "$(fnm env --shell zsh)"
 fi
 
 if command -v zoxide >/dev/null; then
