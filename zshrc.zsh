@@ -138,7 +138,6 @@ if command -v bat >/dev/null; then
   alias less="bat --paging=always"
   alias more="bat --paging=always"
   export PAGER="less -RF"
-  export BAT_PAGER="less -RF"
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"
   export MANROFFOPT="-c"
 fi
