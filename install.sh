@@ -68,10 +68,6 @@ zsh)
   ;;
 esac
 
-# starship ignores xdg dirs... ~/.config should be explicitly used
-mkdir -p "${HOME}/.config"
-link_file "${DOTFILES_DIR}/starship.toml" "${HOME}/.config/starship.toml"
-
 if [ -d "${DOTFILES_DIR}/bin" ]; then
   for binFile in "${DOTFILES_DIR}/bin/"*; do
     if [ -e "$binFile" ]; then

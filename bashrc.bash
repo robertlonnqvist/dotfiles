@@ -51,10 +51,10 @@ export HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/bash_history"
 [[ -t 0 ]] && stty -ixon -ixoff
 
 # Load runtime environment variables
-export LS_COLORS="di=1;34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+export LS_COLORS="di=01;36:ln=35:so=32:pi=33:ex=31:bd=01;36:cd=01;33:su=01;31:sg=01;35:tw=00;32:ow=00;34"
 if [[ "${OSTYPE}" == "darwin"* ]]; then
   export CLICOLOR=1
-  export LSCOLORS="exfxcxdxbxegedabagacad"
+  export LSCOLORS="GxFxCxDxBxegedabagaced"
 fi
 
 # ==============================================================================
