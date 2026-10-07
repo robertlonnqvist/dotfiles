@@ -248,4 +248,6 @@ if command -v zoxide >/dev/null; then
 fi
 
 # Local environment variables definitions sandbox fallback loader
-[[ -e ~/.zshrc.local.zsh ]] && . ~/.zshrc.local.zsh
+if [[ -e ~/.zshrc.local.zsh ]]; then
+  . ~/.zshrc.local.zsh
+fi

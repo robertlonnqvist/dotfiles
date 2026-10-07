@@ -130,4 +130,6 @@ if command -v zoxide >/dev/null; then
 fi
 
 # Local environment variables definitions sandbox fallback loader
-[[ -e ~/.bashrc.local.bash ]] && . ~/.bashrc.local.bash
+if [[ -e ~/.bashrc.local.bash ]]; then
+  . ~/.bashrc.local.bash
+fi
