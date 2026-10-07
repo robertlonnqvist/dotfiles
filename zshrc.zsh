@@ -38,15 +38,16 @@ path=(
 path=($^path(N-/)) # Keep only real physical directories
 
 # History config
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
+export HISTSIZE=10000
+export SAVEHIST=10000
+export HISTFILE="${XDG_STATE_HOME:-${HOME}/.local/state}/zsh_history"
 
 # Shell adjustments
 WORDCHARS=${WORDCHARS//[\/]/} # Remove path separator from word characters
 
 setopt hist_ignore_space
-setopt hist_ignore_dups
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
 setopt auto_cd
 setopt extended_glob
 unsetopt case_glob
@@ -64,14 +65,6 @@ fi
 # Inject completion paths *before* initialization steps
 if [[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
   . "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
-fi
-
-if [[ -d "${HOMEBREW_PREFIX}/share/zsh/site-functions" ]]; then
-  fpath=("${HOMEBREW_PREFIX}/share/zsh/site-functions" $fpath)
-fi
-
-if [[ -d "/run/current-system/sw/share/zsh/site-functions" ]]; then
-  fpath=("/run/current-system/sw/share/zsh/site-functions" $fpath)
 fi
 
 # ==============================================================================

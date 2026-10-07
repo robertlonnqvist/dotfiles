@@ -40,6 +40,7 @@ export PATH="${XDG_BIN_HOME:-${HOME}/.local/bin}:${PATH}"
 set -o vi
 shopt -s checkwinsize
 shopt -s nocaseglob
+shopt -s histappend
 
 # History config
 export HISTCONTROL=ignorespace:erasedups
