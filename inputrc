@@ -5,6 +5,8 @@
 # Core Autocomplete Engine
 set completion-ignore-case on
 set show-all-if-ambiguous on
+set completion-query-items 200
+set menu-complete-display-prefix on
 
 # Mode Initialization
 set editing-mode vi
@@ -24,6 +26,7 @@ $if mode=vi
 
   # History & Line Navigation
   "\C-r": reverse-search-history
+  "\C-s": forward-search-history
   "\C-p": previous-history
   "\C-n": next-history
   "\C-a": beginning-of-line
@@ -37,22 +40,27 @@ $if mode=vi
   "\C-?": backward-delete-char
   "\177": backward-delete-char
 
-  # Sync feature with Zsh: Edit command line buffer in full Vim editor
+  # Edit current command line in the editor, then execute it
   "\C-v": edit-and-execute-command
+
+  # Show the common prefix first, then cycle through ambiguous matches
+  "\C-i": menu-complete
+  "\e[Z": menu-complete-backward
 
   # ----------------------------------
   # 2. Vi Command Mode Shortcuts
   # ----------------------------------
   set keymap vi-command
 
-  # Sync feature with Zsh: Edit command line buffer in full Vim editor
   "\C-v": edit-and-execute-command
+  "\C-i": menu-complete
+  "\e[Z": menu-complete-backward
 
   # ----------------------------------
   # 3. Global Context Maps (Shared Sequences)
   # ----------------------------------
   # Readline automatically applies these fallback sequences across modes
-  
+
   # Word Movements (Ctrl/Alt + Arrow Keys)
   "\e[1;5D": backward-word
   "\e[5D":   backward-word

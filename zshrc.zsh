@@ -70,6 +70,7 @@ fi
 # ==============================================================================
 # COMPLETION ENGINE CONFIGURATION & BEHAVIOR
 # ==============================================================================
+LISTMAX=200
 zmodload zsh/complist
 typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
 autoload -Uz compinit
@@ -166,23 +167,15 @@ bindkey '^a' beginning-of-line
 bindkey '^e' end-of-line
 bindkey '^k' kill-line
 bindkey '^u' backward-kill-line
-bindkey '^l' clear-screen
+bindkey '^y' yank
+bindkey -M vicmd '^y' yank
 
 # Command line buffer actions
 autoload edit-command-line && zle -N edit-command-line
 bindkey '^v' edit-command-line
 bindkey -M vicmd "^v" edit-command-line
 
-# Menu navigation profiles
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'left' vi-backward-char
-bindkey -M menuselect 'down' vi-down-line-or-history
-bindkey -M menuselect 'up' vi-up-line-or-history
-bindkey -M menuselect 'right' vi-forward-char
-bindkey -M menuselect '^y' accept-line
+# escape key to close menu selection
 bindkey -M menuselect '^[' undo
 
 # Dynamic block configurations for keymap mutations
@@ -210,14 +203,13 @@ add-zsh-hook precmd _set_cursor_shape
 [[ -n "${terminfo[kLFT5]}" ]] && bindkey "${terminfo[kLFT5]}" backward-word
 [[ -n "${terminfo[kRIT3]}" ]] && bindkey "${terminfo[kRIT3]}" forward-word
 [[ -n "${terminfo[kRIT5]}" ]] && bindkey "${terminfo[kRIT5]}" forward-word
-[[ -n "${terminfo[kpp]}" ]] && bindkey "${terminfo[kpp]}" beginning-of-buffer-or-history
-[[ -n "${terminfo[knp]}" ]] && bindkey "${terminfo[knp]}" end-of-buffer-or-history
+[[ -n "${terminfo[kpp]}" ]] && bindkey "${terminfo[kpp]}" history-beginning-search-backward
+[[ -n "${terminfo[knp]}" ]] && bindkey "${terminfo[knp]}" history-beginning-search-forward
 [[ -n "${terminfo[kcbt]}" ]] && bindkey "${terminfo[kcbt]}" reverse-menu-complete
 
 # ==============================================================================
 # THIRD-PARTY TOOLS & PROMPT EXTENSIONS
 # ==============================================================================
-autoload -Uz colors && colors
 
 # Starship Prompt setup
 if command -v starship >/dev/null; then
@@ -230,8 +222,8 @@ fi
 if [ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]; then
   ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
   ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-  bindkey '^y' autosuggest-accept
   . "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+  bindkey -M viins '^@' autosuggest-accept
 fi
 
 if [ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]; then
