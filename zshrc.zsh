@@ -50,7 +50,7 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt auto_cd
 setopt extended_glob
-unsetopt case_glob
+setopt no_case_glob
 
 # Disable flow control terminal freezing (Ctrl+s, Ctrl+q)
 [[ -t 0 ]] && stty -ixon -ixoff
@@ -122,8 +122,6 @@ zstyle ':completion:*:manuals.(^1*)' insert-sections true
 # ==============================================================================
 # ALIAS DEFINITIONS
 # ==============================================================================
-alias python-http-server="python3 -m http.server"
-alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
 
 # Bat replacements
@@ -220,7 +218,6 @@ fi
 
 # Modern completion enhancements plugins
 if [ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions" ]; then
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
   ZSH_AUTOSUGGEST_STRATEGY=(history completion)
   . "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
   bindkey -M viins '^@' autosuggest-accept

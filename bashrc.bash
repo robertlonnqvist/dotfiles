@@ -38,6 +38,7 @@ export PATH="${XDG_BIN_HOME:-${HOME}/.local/bin}:${PATH}"
 
 # Shell adjustments
 set -o vi
+shopt -s autocd
 shopt -s nocaseglob
 shopt -s histappend
 
@@ -82,8 +83,6 @@ fi
 # ==============================================================================
 # ALIAS DEFINITIONS
 # ==============================================================================
-alias python-http-server="python3 -m http.server"
-alias my-ip="curl ifconfig.co"
 alias grep="grep --color=auto"
 
 # Bat replacements

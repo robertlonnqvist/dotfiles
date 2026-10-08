@@ -4,9 +4,16 @@
 
 # Core Autocomplete Engine
 set completion-ignore-case on
+set completion-map-case on
 set show-all-if-ambiguous on
 set completion-query-items 200
 set menu-complete-display-prefix on
+set colored-completion-prefix on
+set colored-stats on
+set visible-stats on
+set mark-directories on
+set mark-symlinked-directories on
+set match-hidden-files on
 
 # Mode Initialization
 set editing-mode vi
