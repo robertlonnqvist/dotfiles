@@ -116,6 +116,8 @@ fi
 # Starship Prompt setup
 if command -v starship >/dev/null; then
   eval "$(starship init bash)"
+else
+  PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;36m\]\w\[\e[0m\]\$ '
 fi
 
 # Language runtimes and jump wrappers
