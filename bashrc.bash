@@ -133,3 +133,34 @@ fi
 if [[ -e ~/.bashrc.local.bash ]]; then
   . ~/.bashrc.local.bash
 fi
+
+clean_path() {
+  # Exit early if PATH is somehow empty
+  [[ -z "$PATH" ]] && return 0
+
+  local IFS=':'
+  local dir
+  local -a input_paths
+  read -r -a input_paths <<<"$PATH"
+  local -a output_paths=()
+  # require Bash 4+ for associative arrays
+  local -A seen
+
+  for dir in "${input_paths[@]}"; do
+    # Clear out relative entries, empty entries, and non-existent paths
+    [[ "$dir" != /* || ! -d "$dir" ]] && continue
+
+    # Check for duplicates in O(1) time.
+    [[ -n "${seen[$dir]}" ]] && continue
+
+    # Mark as seen and keep the original path.
+    seen[$dir]=1
+    output_paths+=("$dir")
+  done
+
+  # Join the array back into a colon-separated string
+  PATH="${output_paths[*]}"
+}
+
+clean_path
+unset clean_path

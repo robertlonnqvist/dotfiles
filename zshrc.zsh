@@ -35,8 +35,6 @@ path=(
   $path
 )
 
-path=($^path(N-/)) # Keep only real physical directories
-
 # History config
 export HISTSIZE=10000
 export SAVEHIST=10000
@@ -62,14 +60,19 @@ if [[ "${OSTYPE}" == "darwin"* ]]; then
   export LSCOLORS="GxFxCxDxBxegedabagaced"
 fi
 
+# ==============================================================================
+# COMPLETION ENGINE CONFIGURATION & BEHAVIOR
+# ==============================================================================
+
 # Inject completion paths *before* initialization steps
 if [[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions" ]]; then
   . "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-completions/zsh-completions.plugin.zsh"
 fi
 
-# ==============================================================================
-# COMPLETION ENGINE CONFIGURATION & BEHAVIOR
-# ==============================================================================
+if [[ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/completions" ]]; then
+  fpath=("${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/completions" $fpath)
+fi
+
 LISTMAX=200
 zmodload zsh/complist
 typeset -g compdump="${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump"
@@ -240,3 +243,7 @@ fi
 if [[ -e ~/.zshrc.local.zsh ]]; then
   . ~/.zshrc.local.zsh
 fi
+
+# Keep only real physical directories
+path=($^path(N-/))
+fpath=($^fpath(N-/))
