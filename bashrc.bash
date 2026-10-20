@@ -121,10 +121,6 @@ else
 fi
 
 # Language runtimes and jump wrappers
-if command -v fnm >/dev/null; then
-  eval "$(fnm env --shell bash)"
-fi
-
 if command -v zoxide >/dev/null; then
   eval "$(zoxide init --cmd=cd bash)"
 fi

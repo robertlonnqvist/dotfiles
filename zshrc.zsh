@@ -231,10 +231,6 @@ if [ -d "${XDG_DATA_HOME:-${HOME}/.local/share}/zsh-syntax-highlighting" ]; then
 fi
 
 # Language runtimes and jump wrappers
-if command -v fnm >/dev/null; then
-  eval "$(fnm env --shell zsh)"
-fi
-
 if command -v zoxide >/dev/null; then
   eval "$(zoxide init --cmd=cd zsh)"
 fi
